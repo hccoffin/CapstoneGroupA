@@ -3,9 +3,9 @@ close all
 syms m_b i_b g phi dphi ddphi theta dtheta ddtheta l r torque real
 
 m_b = 20;
-i_b = 5;
 g = 9.81;
 l = 0.4;
+i_b = m_b*l^2/12;
 r = 0.06;
 
 
@@ -32,7 +32,7 @@ ddq = simplify(inv(M)*(Tau - C*dq - N));
 g = matlabFunction(ddq, 'Vars', [phi dphi torque]);
 
 tspan = [0 5];
-q0 = [0 0 0.07 0]';
+q0 = [0 0 0.2 0]';
 [t, y] = ode45(@(t,y) sim_state_update(t,y,g), tspan, q0);
 visualize(t,y,r,l)
 

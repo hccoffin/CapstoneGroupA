@@ -1,0 +1,3 @@
+[submodule "arduino_src/BasicLinearAlgebra"]
+	path = arduino_src/BasicLinearAlgebra
+	url = https://github.com/tomstewart89/BasicLinearAlgebra.git
