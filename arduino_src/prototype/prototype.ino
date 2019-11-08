@@ -9,6 +9,8 @@
 #define pwm_1 3
 #define dir_2 5
 #define pwm_2 6
+#define outputA 31
+#define outputB 33
 
 // Declare IMU instance
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
@@ -20,8 +22,16 @@ void setup(void)
   pinMode(dir_1,OUTPUT);
   pinMode(pwm_2,OUTPUT);
   pinMode(dir_2,OUTPUT);
+
+  // ENCODER INIT
+  pinMode (outputA,INPUT);
+  pinMode (outputB,INPUT);
     
   Serial.begin(9600);
+  
+  // ENCODER INIT PT 2
+  aLastState = digitalRead(outputA);
+  
   delay(100);
   Serial.println("Orientation Sensor Test"); Serial.println("");
   
@@ -82,6 +92,19 @@ void loop(void)
   int mag = min(max(abs(pitch)*6, 0), 255);
   analogWrite(pwm_1, mag);
   analogWrite(pwm_2, mag);
-  
+
+  /*ERICA STARTS HERE*/
+    aState = digitalRead(outputA);
+    if (aState != aLastState){ 
+       if (digitalRead(outputB) != aState) { 
+          counter ++;
+       } else {
+       counter --;
+     }
+     Serial.print("Position: ");
+     Serial.println(counter);
+   } 
+   aLastState = aState;
+    }
   delay(10);
 }
