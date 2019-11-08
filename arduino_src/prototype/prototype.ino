@@ -36,6 +36,11 @@ void setup(void)
   delay(1000);
     
   bno.setExtCrystalUse(true);
+
+  
+  //digitalWrite(pwm_1,HIGH);
+  //digitalWrite(pwm_2,HIGH);
+    
 }
 
 void loop(void) 
@@ -43,15 +48,40 @@ void loop(void)
   /* Get a new sensor event */ 
   sensors_event_t event; 
   bno.getEvent(&event);
+                       
   
   /* Display the floating point data */
-  Serial.print("X: ");
+  /*Serial.print("X: ");
   Serial.print(event.orientation.x, 4);
   Serial.print("\tY: ");
   Serial.print(event.orientation.y, 4);
   Serial.print("\tZ: ");
   Serial.print(event.orientation.z, 4);
-  Serial.println("");
+  Serial.println("");*/
+
+  /*
+  double pitch = event.orientation.y/45.0; //mapped to -1 to 1
+  int pitch_mapped_to_l_speed = max(min(255, (pitch+1)*128), 0);
+  int pitch_mapped_to_r_speed = 255 - pitch_mapped_to_l_speed;
+  
+  analogWrite(dir_1, pitch_mapped_to_l_speed);
+  analogWrite(dir_2, pitch_mapped_to_r_speed);
+  */
+  
+  double pitch = event.orientation.y; // -180 to 180
+  if (pitch < 0)
+  {
+    digitalWrite(dir_1, HIGH);
+    digitalWrite(dir_2, HIGH);
+  }
+  else
+  {
+    digitalWrite(dir_1, LOW);
+    digitalWrite(dir_2, LOW);
+  }
+  int mag = min(max(abs(pitch)*6, 0), 255);
+  analogWrite(pwm_1, mag);
+  analogWrite(pwm_2, mag);
   
   delay(10);
 }
