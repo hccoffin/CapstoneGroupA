@@ -14,9 +14,7 @@
 #define outputA2 20
 #define outputB2 21
 
-volatile bool aLastState1;
 volatile int counter1;
-volatile bool aLastState2;
 volatile int counter2;
 
 // Declare IMU instance
@@ -75,7 +73,7 @@ void loop(void)
   /* Get a new sensor event */ 
   sensors_event_t event; 
   bno.getEvent(&event);
-                       
+                      
   
   /* Display the floating point data */
   /*Serial.print("X: ");
@@ -109,31 +107,25 @@ void loop(void)
   int mag = min(max(abs(pitch)*6, 0), 255);
   analogWrite(pwm_1, mag);
   analogWrite(pwm_2, mag);
+  Serial.print("Position1: ");
+  Serial.println(counter1);
+  //Serial.print("Position2: ");
+  //Serial.println(counter2); 
   delay(10);
 }
 void encoder1() {
   bool aState1 = digitalRead(outputA1);
-  if (aState1 != aLastState1){ 
     if (digitalRead(outputB1) != aState1) { 
        counter1++;
        } else {
        counter1--;
        }
-     Serial.print("Position1: ");
-     Serial.println(counter1);
-   } 
-   aLastState1 = aState1;
-}
+} 
 void encoder2() {
   bool aState2 = digitalRead(outputA2);
-  if (aState2 != aLastState2){ 
     if (digitalRead(outputB2) != aState2) { 
        counter2++;
-       } else {
+       } else {     
        counter2--;
        }
-     Serial.print("Position2: ");
-     Serial.println(counter2);
-   } 
-   aLastState2 = aState2;
 }
