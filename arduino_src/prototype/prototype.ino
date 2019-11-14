@@ -37,16 +37,14 @@ void setup(void)
   pinMode(outputA2,INPUT);
   pinMode(outputB2,INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(outputA1), encoder1, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(outputA2), encoder2, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(outputA1), encoder1, CHANGE);
+  //attachInterrupt(digitalPinToInterrupt(outputA2), encoder2, CHANGE);
     
   Serial.begin(9600);
   
   // ENCODER INIT PT 2
-  bool aLastState1 = digitalRead(outputA1);
-  bool aLastState2 = digitalRead(outputA2);
-  int counter1 = 0;
-  int counter2 = 0;
+  counter1 = 0;
+  counter2 = 0;
   
   delay(100);
   Serial.println("Orientation Sensor Test"); Serial.println("");
@@ -65,14 +63,18 @@ void setup(void)
   //digitalWrite(pwm_1,HIGH);
   //digitalWrite(pwm_2,HIGH);
   }
+  Serial.println("done setup");
     
 }
 
 void loop(void) 
 {
   /* Get a new sensor event */ 
+  Serial.println("In loop");
   sensors_event_t event; 
   bno.getEvent(&event);
+  //Serial.print("Position1: ");
+  //Serial.println(counter1);
                       
   
   /* Display the floating point data */
@@ -107,25 +109,23 @@ void loop(void)
   int mag = min(max(abs(pitch)*6, 0), 255);
   analogWrite(pwm_1, mag);
   analogWrite(pwm_2, mag);
-  Serial.print("Position1: ");
-  Serial.println(counter1);
   //Serial.print("Position2: ");
   //Serial.println(counter2); 
   delay(10);
 }
 void encoder1() {
-  bool aState1 = digitalRead(outputA1);
-    if (digitalRead(outputB1) != aState1) { 
-       counter1++;
-       } else {
-       counter1--;
-       }
+  Serial.println("1");
+  if (digitalRead(outputB1) != digitalRead(outputA1)) { 
+     counter1++;
+     } else {
+     counter1--;
+  }
 } 
 void encoder2() {
-  bool aState2 = digitalRead(outputA2);
-    if (digitalRead(outputB2) != aState2) { 
-       counter2++;
-       } else {     
-       counter2--;
-       }
+  Serial.println("2");
+  if (digitalRead(outputB2) != digitalRead(outputA2)) { 
+     counter2++;
+     } else {     
+     counter2--;
+  }
 }
