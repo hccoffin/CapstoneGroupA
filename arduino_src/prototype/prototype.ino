@@ -9,11 +9,21 @@
 #define pwm_1 3
 #define dir_2 5
 #define pwm_2 6
-#define outputA 31
-#define outputB 33
+#define outputA1 18
+#define outputB1 19
+#define outputA2 20
+#define outputB2 21
+
+volatile bool aLastState1;
+volatile int counter1;
+volatile bool aLastState2;
+volatile int counter2;
 
 // Declare IMU instance
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
+
+void encoder1();
+void encoder2();
 
 void setup(void) 
 {
@@ -24,13 +34,21 @@ void setup(void)
   pinMode(dir_2,OUTPUT);
 
   // ENCODER INIT
-  pinMode (outputA,INPUT);
-  pinMode (outputB,INPUT);
+  pinMode(outputA1,INPUT);
+  pinMode(outputB1,INPUT);
+  pinMode(outputA2,INPUT);
+  pinMode(outputB2,INPUT);
+
+  attachInterrupt(digitalPinToInterrupt(outputA1), encoder1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(outputA2), encoder2, CHANGE);
     
   Serial.begin(9600);
   
   // ENCODER INIT PT 2
-  aLastState = digitalRead(outputA);
+  bool aLastState1 = digitalRead(outputA1);
+  bool aLastState2 = digitalRead(outputA2);
+  int counter1 = 0;
+  int counter2 = 0;
   
   delay(100);
   Serial.println("Orientation Sensor Test"); Serial.println("");
@@ -41,8 +59,6 @@ void setup(void)
     /* There was a problem detecting the BNO055 ... check your connections */
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while(1);
-  }
-  
   delay(1000);
     
   bno.setExtCrystalUse(true);
@@ -50,6 +66,7 @@ void setup(void)
   
   //digitalWrite(pwm_1,HIGH);
   //digitalWrite(pwm_2,HIGH);
+  }
     
 }
 
@@ -92,19 +109,31 @@ void loop(void)
   int mag = min(max(abs(pitch)*6, 0), 255);
   analogWrite(pwm_1, mag);
   analogWrite(pwm_2, mag);
-
-  /*ERICA STARTS HERE*/
-    aState = digitalRead(outputA);
-    if (aState != aLastState){ 
-       if (digitalRead(outputB) != aState) { 
-          counter ++;
-       } else {
-       counter --;
-     }
-     Serial.print("Position: ");
-     Serial.println(counter);
-   } 
-   aLastState = aState;
-    }
   delay(10);
+}
+void encoder1() {
+  bool aState1 = digitalRead(outputA1);
+  if (aState1 != aLastState1){ 
+    if (digitalRead(outputB1) != aState1) { 
+       counter1++;
+       } else {
+       counter1--;
+       }
+     Serial.print("Position1: ");
+     Serial.println(counter1);
+   } 
+   aLastState1 = aState1;
+}
+void encoder2() {
+  bool aState2 = digitalRead(outputA2);
+  if (aState2 != aLastState2){ 
+    if (digitalRead(outputB2) != aState2) { 
+       counter2++;
+       } else {
+       counter2--;
+       }
+     Serial.print("Position2: ");
+     Serial.println(counter2);
+   } 
+   aLastState2 = aState2;
 }
