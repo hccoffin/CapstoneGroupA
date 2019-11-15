@@ -3,6 +3,7 @@
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 #include <BasicLinearAlgebra.h>
+#include <Encoder.h>
 
 // Setup PWM pin numbers for motors
 #define dir_1 2
@@ -14,14 +15,12 @@
 #define outputA2 20
 #define outputB2 21
 
-volatile int counter1;
-volatile int counter2;
-
 // Declare IMU instance
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
-void encoder1();
-void encoder2();
+// Create Encoder Objects
+Encoder E1(18, 19);
+Encoder E2(20, 21);
 
 void setup(void) 
 {
@@ -30,53 +29,35 @@ void setup(void)
   pinMode(dir_1,OUTPUT);
   pinMode(pwm_2,OUTPUT);
   pinMode(dir_2,OUTPUT);
-
-  // ENCODER INIT
-  pinMode(outputA1,INPUT);
-  pinMode(outputB1,INPUT);
-  pinMode(outputA2,INPUT);
-  pinMode(outputB2,INPUT);
-
-  //attachInterrupt(digitalPinToInterrupt(outputA1), encoder1, CHANGE);
-  //attachInterrupt(digitalPinToInterrupt(outputA2), encoder2, CHANGE);
     
   Serial.begin(9600);
   
-  // ENCODER INIT PT 2
-  counter1 = 0;
-  counter2 = 0;
-  
   delay(100);
   Serial.println("Orientation Sensor Test"); Serial.println("");
-  
-  /* Initialise the sensor */
-  if(!bno.begin())
-  {
-    /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    while(1);
-  delay(1000);
-    
-  bno.setExtCrystalUse(true);
-
-  
-  //digitalWrite(pwm_1,HIGH);
-  //digitalWrite(pwm_2,HIGH);
-  }
-  Serial.println("done setup");
+//  
+//  /* Initialise the sensor */
+//  if(!bno.begin())
+//  {
+//    /* There was a problem detecting the BNO055 ... check your connections */
+//    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+//    while(1);
+//  delay(1000);
+//    
+//  bno.setExtCrystalUse(true);
+//
+//  
+//  //digitalWrite(pwm_1,HIGH);
+//  //digitalWrite(pwm_2,HIGH);
+//  }
     
 }
 
 void loop(void) 
 {
   /* Get a new sensor event */ 
-  Serial.println("In loop");
   sensors_event_t event; 
   bno.getEvent(&event);
-  //Serial.print("Position1: ");
-  //Serial.println(counter1);
                       
-  
   /* Display the floating point data */
   /*Serial.print("X: ");
   Serial.print(event.orientation.x, 4);
@@ -109,23 +90,13 @@ void loop(void)
   int mag = min(max(abs(pitch)*6, 0), 255);
   analogWrite(pwm_1, mag);
   analogWrite(pwm_2, mag);
-  //Serial.print("Position2: ");
-  //Serial.println(counter2); 
+
+  // Read Encoder Values
+  long enc1 = E1.read();
+  long enc2 = E2.read();
+
+  Serial.print(enc1);
+  Serial.print(", ");
+  Serial.println(enc2);
   delay(10);
-}
-void encoder1() {
-  Serial.println("1");
-  if (digitalRead(outputB1) != digitalRead(outputA1)) { 
-     counter1++;
-     } else {
-     counter1--;
-  }
-} 
-void encoder2() {
-  Serial.println("2");
-  if (digitalRead(outputB2) != digitalRead(outputA2)) { 
-     counter2++;
-     } else {     
-     counter2--;
-  }
 }
