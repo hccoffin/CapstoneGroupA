@@ -9,8 +9,6 @@
 #define pwm_1 3
 #define dir_2 5
 #define pwm_2 6
-#define outputA 31
-#define outputB 33
 
 // Declare IMU instance
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
@@ -22,52 +20,40 @@ void setup(void)
   pinMode(dir_1,OUTPUT);
   pinMode(pwm_2,OUTPUT);
   pinMode(dir_2,OUTPUT);
-
-  // ENCODER INIT
-  pinMode (outputA,INPUT);
-  pinMode (outputB,INPUT);
     
   Serial.begin(9600);
   
-  // ENCODER INIT PT 2
-  aLastState = digitalRead(outputA);
-  
   delay(100);
   Serial.println("Orientation Sensor Test"); Serial.println("");
-  
+  Serial.println("Checking sensor");
   /* Initialise the sensor */
   if(!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    Serial.println("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while(1);
   }
-  
+  Serial.println("Post check");
   delay(1000);
     
   bno.setExtCrystalUse(true);
-
-  
-  //digitalWrite(pwm_1,HIGH);
-  //digitalWrite(pwm_2,HIGH);
-    
+  Serial.println("Exiting setup");
 }
 
 void loop(void) 
 {
   /* Get a new sensor event */ 
   sensors_event_t event; 
-  bno.getEvent(&event);
-                       
+  bno.getEvent(&event);                
   
   /* Display the floating point data */
-  /*Serial.print("X: ");
+  Serial.print("X: ");
   Serial.print(event.orientation.x, 4);
   Serial.print("\tY: ");
   Serial.print(event.orientation.y, 4);
   Serial.print("\tZ: ");
   Serial.print(event.orientation.z, 4);
-  Serial.println("");*/
+  Serial.println("");
 
   /*
   double pitch = event.orientation.y/45.0; //mapped to -1 to 1
@@ -78,33 +64,21 @@ void loop(void)
   analogWrite(dir_2, pitch_mapped_to_r_speed);
   */
   
-  double pitch = event.orientation.y; // -180 to 180
+  double pitch = event.orientation.z; // -180 to 180
   if (pitch < 0)
-  {
-    digitalWrite(dir_1, HIGH);
-    digitalWrite(dir_2, HIGH);
-  }
-  else
   {
     digitalWrite(dir_1, LOW);
     digitalWrite(dir_2, LOW);
   }
-  int mag = min(max(abs(pitch)*6, 0), 255);
+  else
+  {
+    digitalWrite(dir_1, HIGH);
+    digitalWrite(dir_2, HIGH);
+  }
+  int mag = min(max(abs(pitch)*27, 0), 255);
   analogWrite(pwm_1, mag);
   analogWrite(pwm_2, mag);
+  
 
-  /*ERICA STARTS HERE*/
-    aState = digitalRead(outputA);
-    if (aState != aLastState){ 
-       if (digitalRead(outputB) != aState) { 
-          counter ++;
-       } else {
-       counter --;
-     }
-     Serial.print("Position: ");
-     Serial.println(counter);
-   } 
-   aLastState = aState;
-    }
-  delay(10);
+  //delay(10);
 }
