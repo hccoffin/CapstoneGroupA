@@ -40,45 +40,39 @@ void setup(void)
   Serial.println("Exiting setup");
 }
 
-void loop(void) 
-{
-  /* Get a new sensor event */ 
-  sensors_event_t event; 
-  bno.getEvent(&event);                
-  
-  /* Display the floating point data */
-  Serial.print("X: ");
-  Serial.print(event.orientation.x, 4);
-  Serial.print("\tY: ");
-  Serial.print(event.orientation.y, 4);
-  Serial.print("\tZ: ");
-  Serial.print(event.orientation.z, 4);
-  Serial.println("");
 
-  /*
-  double pitch = event.orientation.y/45.0; //mapped to -1 to 1
-  int pitch_mapped_to_l_speed = max(min(255, (pitch+1)*128), 0);
-  int pitch_mapped_to_r_speed = 255 - pitch_mapped_to_l_speed;
+double kp = 40;
+double kd = 2;
+double pitch_set = 0;
+double dpitch_set = 0;
+
+void loop(void) 
+{             
+
+  imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
+  imu::Vector<3> angVel = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
   
-  analogWrite(dir_1, pitch_mapped_to_l_speed);
-  analogWrite(dir_2, pitch_mapped_to_r_speed);
-  */
+  double pitch = euler.z();
+  double dpitch = -angVel.x();
+
+  double control_sig = kp*(pitch_set - pitch) + kd*(dpitch_set - dpitch);
   
-  double pitch = event.orientation.z; // -180 to 180
-  if (pitch < 0)
-  {
-    digitalWrite(dir_1, LOW);
-    digitalWrite(dir_2, LOW);
-  }
-  else
+  
+  if (control_sig < 0)
   {
     digitalWrite(dir_1, HIGH);
     digitalWrite(dir_2, HIGH);
   }
-  int mag = min(max(abs(pitch)*27, 0), 255);
+  else
+  {
+    digitalWrite(dir_1, LOW);
+    digitalWrite(dir_2, LOW);
+  }
+  
+  int mag = max(min(abs(control_sig), 255), 0);
+  Serial.println(mag);
   analogWrite(pwm_1, mag);
   analogWrite(pwm_2, mag);
   
-
   //delay(10);
 }
