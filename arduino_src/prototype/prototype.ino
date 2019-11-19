@@ -22,7 +22,7 @@
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
 // Create Encoder Objects
-//Encoder E1(18, 19);
+Encoder E1(18, 19);
 //Encoder E2(20, 21);
 
 PIDController pid_pitch;
@@ -41,8 +41,6 @@ void setup(void)
   delay(100);
   Serial.println("Orientation Sensor Test"); Serial.println("");
 
-
-  
   /* Initialise the sensor */
   if(!bno.begin())
   {
@@ -84,13 +82,13 @@ void setup(void)
   bno.setExtCrystalUse(true);
 
   pid_pitch.begin();          // initialize the PID instance
-  pid_pitch.setpoint(0);    // The "goal" the PID controller tries to "reach"
-  pid_pitch.tune(50, 0, 0);    // Tune the PID, arguments: kP, kI, kD
+  pid_pitch.setpoint(-0.2);    // The "goal" the PID controller tries to "reach"
+  pid_pitch.tune(260, 2, 40);    // Tune the PID, arguments: kP, kI, kD
   pid_pitch.limit(-255, 255);    // limit to -255->255
 
   pid_wheel.begin();          // initialize the PID instance
   pid_wheel.setpoint(0);    // The "goal" the PID controller tries to "reach"
-  pid_wheel.tune(0, 0, 0);    // Tune the PID, arguments: kP, kI, kD
+  pid_wheel.tune(0.0, 0, 0);    // Tune the PID, arguments: kP, kI, kD
   pid_wheel.limit(-30, 30);    // limit to -255->255
   
   Serial.println("Exiting setup");
@@ -108,7 +106,7 @@ void loop(void)
 {
  
   // Read Encoder
-  //long enc1 = -E1.read();
+  long enc1 = -E1.read();
             
   // Read IMU
   sensors_event_t orientationData , angVelocityData;
@@ -116,9 +114,9 @@ void loop(void)
   //bno.getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
   
   //imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-  double pitch = orientationData.orientation.x;
-
-  int control_sig = pid_pitch.compute(pitch) + pid_wheel.compute(pitch);
+  double pitch = orientationData.orientation.z;
+  //Serial.println(pitch);
+  int control_sig = pid_pitch.compute(pitch) + pid_wheel.compute(enc1);
   if (control_sig < 0)
   {
     digitalWrite(dir_1, HIGH);
