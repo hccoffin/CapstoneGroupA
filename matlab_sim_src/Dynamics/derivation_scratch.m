@@ -6,23 +6,28 @@ syms tauL tauR tauPitch real
 q = [theta;phiL;phiR];
 dq = [dtheta;dphiL;dphiR];
 Y = [tauPitch;tauL;tauR];
-X = [q;dq];
+y = [q;dq];
 syms mw Iw mb Ib real % Mass and Inertia of wheels, Mass and Inertia of body
 syms r l b g real% Radius of wheel, length of body shaft, baseline between wheels, gravity
 
 %% Numerical constants
-Ts_n = 0.01; % 1/update frequency (s), used in discretizing our model
-mw_n = 0.05;
-Iw_n = 0.0005;
-mb_n = 1;
-Ib_n = 0.01;
+Ts_n = 0.01; % Update rate (s)
+mw_n = 0.05; % Mass of wheels (kg)
+Iw_n = 0.0005; % Inertia of wheels (kg*m^2)
+mb_n = 1; % Mass of body (kg)
+Ib_n = 0.01; % Inertia of body (kg*m^2)
 
-r_n = 0.025;
-l_n = 0.1;
-b_n = 0.15;
+r_n = 0.025; % Wheel radius (m)
+l_n = 0.1; % Length from wheel axle to body COM (m)
+b_n = 0.15; % Baseline distance between wheels (m)
 
-g_n = 9.81;
-tauPitch_n = 0;
+g_n = 9.81; % Gravitational Constant (m/s^2)
+tauPitch_n = 0; % No actuation at hip
+
+nu_n = 0.8; % Gearbox efficiency
+kt_n = 1; % Motor torque constant
+G_n = 43.7; % Motor gearbox ratio
+R_N = 10; % Motor resistance (ohms)
 
 %% Potential Energy
 V = mb*g*l*cos(theta);
@@ -65,7 +70,7 @@ ddq_lin = simplify(subs(ddq_n, lin_sym_vars, lin_num_vars) + J_n * (lin_sym_vars
 matlabFunction(ddq_lin,'File','compute_linearized_ddq','Comments','Version: 1.1', 'Vars', lin_sym_vars)
 
 %% Test linearization locally
-thetas_test = -0.5:0.001:0.5;
+thetas_test = -1:0.001:1;
 zeros_test = zeros(size(thetas_test));
 
 ddq_lin_test = compute_linearized_ddq(thetas_test, zeros_test, zeros_test, zeros_test);
@@ -94,15 +99,27 @@ title("Linearized ddPhiR")
 
 subplot(2,3,4)
 hold on
-plot(thetas_test,ddq_error_test)
-title("Percent Error")
+plot(thetas_test,ddq_error_test(1,:))
+title("Percent Error ddTheta")
+
+subplot(2,3,5)
+hold on
+plot(thetas_test,ddq_error_test(2,:))
+title("Percent Error ddPhiL")
+
+subplot(2,3,6)
+hold on
+plot(thetas_test,ddq_error_test(3,:))
+title("Percent Error ddPhiR")
 
 %% Compute A, B matrices from linearized u
 disp("Continuous Linearized System Dynamics (dX = A*X+B*Y): ")
 
-A_con = [zeros(3) eye(3); double(equationsToMatrix(ddq_lin, X))]
-B_con = [zeros(3); double(equationsToMatrix(ddq_lin, Y))]
+% Continuous update matrices
+A_con = [zeros(3) eye(3); double(equationsToMatrix(ddq_lin, y))];
+B_con = [zeros(3); double(equationsToMatrix(ddq_lin, Y))];
 B_con = B_con(:,2:end);
+
 disp("Discrete Linearized System Dynamics (dX = A*X+B*Y): ")
 [A_dis, B_dis] = c2d(A_con, B_con, Ts_n)
 disp("Linearized observation matrix (Y_obs = C*X: ");
@@ -121,26 +138,28 @@ Q = [1 0 0 0 0 0;
      0 0 0 0 1 0;
      0 0 0 0 0 1]
  
-R = [1 0;
-     0 1] % Penalty on left and right torque
- 
+R = [10 0;
+     0 10] % Penalty on left and right torque
+
+
 % Get linear state feedback controller
 [K,S,E] = dlqry(A_dis,B_dis,C,D,Q,R);
 K
 
 %% Test in Simulation
-tspan = 0:0.01:2;
+tspan = 0:0.01:5;
 
 % Theta PhiL PhiR
-q0 = [0.2;0;0];
+q0 = [-0.3;0;0];
 
 % dTheta dPhiL dPhiR
 dq0 = [0;0;0];
 
-[t,y] = ode45(@(t,q) state_update_fn(t,q,K),tspan,[q0;dq0]);
+y_des = [0;0;0;0;0;0];
+
+[t,y] = ode45(@(t,y) state_update_fn(t,y,y_des,K),tspan,[q0;dq0]);
 
 figure(2)
-
 subplot(2,3,1)
 plot(t,y(:,1))
 title("Theta")
@@ -164,4 +183,23 @@ title("dPhiL")
 subplot(2,3,6)
 plot(t,y(:,6))
 title("dPhiR")
+
+%% Reconstruct Desired and Applied Torques
+torque_des = (-K*y')';
+torque_max = get_torque_max(y(:, 5:6) - y_des(5:6)');
+
+figure(3)
+subplot(1,2,1)
+hold on
+plot(t,torque_des(:,1))
+plot(t,torque_max(:,1))
+title("Torque on left wheel");
+legend("Desired", "Max");
+
+subplot(1,2,2)
+hold on
+plot(t,torque_des(:,2))
+plot(t,torque_max(:,2))
+title("Torque on right wheel");
+legend("Desired", "Max");
 
