@@ -82,7 +82,7 @@ void setup(void)
   bno.setExtCrystalUse(true);
 
   pid_pitch.begin();          // initialize the PID instance
-  pid_pitch.setpoint(-0.1);    // The "goal" the PID controller tries to "reach"
+  pid_pitch.setpoint(-0.15);    // The "goal" the PID controller tries to "reach"
   pid_pitch.tune(260, 2, 50);    // Tune the PID, arguments: kP, kI, kD
   pid_pitch.limit(-255, 255);    // limit to -255->255
 
