@@ -32,6 +32,7 @@ ylabel('y')
 % draw
 for ii = 1:length(xout)
     a = tic;
+    
     addpoints(h,xout(ii,1),xout(ii,2));
     drawnow limitrate
     delete(particle) % Erases previous particle
