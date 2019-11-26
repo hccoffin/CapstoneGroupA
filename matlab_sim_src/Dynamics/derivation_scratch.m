@@ -186,20 +186,20 @@ title("dPhiR")
 
 %% Reconstruct Desired and Applied Torques
 torque_des = (-K*y')';
-torque_max = get_torque_max(y(:, 5:6) - y_des(5:6)');
+%torque_max = get_torque_max(y(:, 5:6) - y_des(5:6)');
 
 figure(3)
 subplot(1,2,1)
 hold on
 plot(t,torque_des(:,1))
-plot(t,torque_max(:,1))
+%plot(t,torque_max(:,1))
 title("Torque on left wheel");
 legend("Desired", "Max");
 
 subplot(1,2,2)
 hold on
 plot(t,torque_des(:,2))
-plot(t,torque_max(:,2))
+%plot(t,torque_max(:,2))
 title("Torque on right wheel");
 legend("Desired", "Max");
 

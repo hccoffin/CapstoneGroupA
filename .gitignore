@@ -1,3 +1,4 @@
 ros_ws/build
 ros_ws/devel
 *.~m
+*.DS_STORE
