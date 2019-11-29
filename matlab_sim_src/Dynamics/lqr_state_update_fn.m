@@ -1,4 +1,4 @@
-function dy = state_update_fn(t,y,y_des,K)
+function dy = lqr_state_update_fn(t,y,y_des,K)
 %	state_update_function Returns the derivative of state y
 %   Inputs:
 %       t: current time

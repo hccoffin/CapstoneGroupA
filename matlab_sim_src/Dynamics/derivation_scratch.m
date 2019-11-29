@@ -157,7 +157,8 @@ dq0 = [0;0;0];
 
 y_des = [0;0;0;0;0;0];
 
-[t,y] = ode45(@(t,y) state_update_fn(t,y,y_des,K),tspan,[q0;dq0]);
+[t,y] = ode45(@(t,y) lqr_state_update_fn(t,y,y_des,K),tspan,[q0;dq0]);
+[t_mpc,y_mpc] = ode45(@(t,y) mpc_state_update_fn(t,y,y_des),tspan,[q0;dq0]);
 
 figure(2)
 subplot(2,3,1)
