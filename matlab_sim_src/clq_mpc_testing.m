@@ -14,7 +14,7 @@ R = eye(nu,nu);
 
 % Save to YAML
 control_params = struct('Ad', Ad, 'Bd', Bd, 'Q', Q, 'R', R, 'N', N, 'dt', dt);
-yaml.WriteYaml('../ros_ws/src/controller/config/control_params.yaml',x)
+yaml.WriteYaml('../ros_ws/src/controller/config/control_params.yaml',control_params);
 
 P = blkdiag(kron(speye(N), Q), QN, kron(speye(N), R) );
 q = [repmat(-Q*xr, N, 1); -QN*xr; zeros(N*nu, 1)];
