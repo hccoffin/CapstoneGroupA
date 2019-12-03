@@ -11,11 +11,11 @@ import std_msgs
 import osqp
 import numpy as np
 import scipy as sp
-import scipy.io as sio
 from scipy import sparse
 
-# MCU imports
+# IO imports
 import odrive
+import bios
 
 # Load A,B dynamics matrices, costs Q, R and LQR backup gains K from YAML
 params_filename = "../config/control_params.mat"
