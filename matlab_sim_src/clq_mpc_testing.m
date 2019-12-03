@@ -1,6 +1,6 @@
+clear all
 load('Dynamics/dynamics.mat')
-Ad = A_dis;
-Bd = B_dis;
+dt = Ts_n;
 [nx, nu] = size(Bd); % Length of State Vector, Action Vector
 N = 500; % Num States to Look Ahead
 
@@ -11,6 +11,10 @@ x0 = [1;0;0;0;0;0]; % current state
 Q = eye(nx, nx);
 QN = 3*eye(nx, nx);
 R = eye(nu,nu);
+
+% Save to YAML
+control_params = struct('Ad', Ad, 'Bd', Bd, 'Q', Q, 'R', R, 'N', N, 'dt', dt);
+yaml.WriteYaml('../ros_ws/src/controller/config/control_params.yaml',x)
 
 P = blkdiag(kron(speye(N), Q), QN, kron(speye(N), R) );
 q = [repmat(-Q*xr, N, 1); -QN*xr; zeros(N*nu, 1)];

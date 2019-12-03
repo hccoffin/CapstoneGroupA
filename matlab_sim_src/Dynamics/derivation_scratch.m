@@ -121,7 +121,9 @@ B_con = [zeros(3); double(equationsToMatrix(ddq_lin, Y))];
 B_con = B_con(:,2:end);
 
 disp("Discrete Linearized System Dynamics (dX = A*X+B*Y): ")
-[A_dis, B_dis] = c2d(A_con, B_con, Ts_n)
+[Ad, Bd] = c2d(A_con, B_con, Ts_n)
+save('dynamics.mat','Ad','Bd','Ts_n')
+
 disp("Linearized observation matrix (Y_obs = C*X: ");
 C = [1 0 0 0 0 0;
      0 1 0 0 0 0;
@@ -143,7 +145,7 @@ R = [10 0;
 
 
 % Get linear state feedback controller
-[K,S,E] = dlqry(A_dis,B_dis,C,D,Q,R);
+[K,S,E] = dlqry(Ad,Bd,C,D,Q,R);
 K
 
 %% Test in Simulation
@@ -158,7 +160,7 @@ dq0 = [0;0;0];
 y_des = [0;0;0;0;0;0];
 
 [t,y] = ode45(@(t,y) lqr_state_update_fn(t,y,y_des,K),tspan,[q0;dq0]);
-[t_mpc,y_mpc] = ode45(@(t,y) mpc_state_update_fn(t,y,y_des),tspan,[q0;dq0]);
+%[t_mpc,y_mpc] = ode45(@(t,y) mpc_state_update_fn(t,y,y_des),tspan,[q0;dq0]);
 
 figure(2)
 subplot(2,3,1)
