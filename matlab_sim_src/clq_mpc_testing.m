@@ -1,15 +1,11 @@
-% Fake dynamics
-
 load('Dynamics/dynamics.mat')
 Ad = A_dis;
-Ad_sym = sym('Ad_sym', size(Ad), 'real');
 Bd = B_dis;
-Bd_sym = sym('Bd_sym', size(Bd), 'real');
 [nx, nu] = size(Bd); % Length of State Vector, Action Vector
 N = 500; % Num States to Look Ahead
 
-xr = zeros(nx,1);
-x0 = [1;0;0;0;0;0];
+xr = zeros(nx,1); % desired state
+x0 = [1;0;0;0;0;0]; % current state
 
 % Setup objective (1/2*x'*P*x + q'x)
 Q = eye(nx, nx);
@@ -51,3 +47,20 @@ prob.setup(P, q, A, l, u, 'warm_start', true);
 
 res = prob.solve();
 
+theta = res.x(1:6:N*nx);
+phil = res.x(2:6:N*nx);
+phir = res.x(3:6:N*nx);
+
+figure(1)
+
+subplot(1,3,1)
+plot(theta)
+title("Theta")
+
+subplot(1,3,2)
+plot(phil)
+title("Phi Left")
+
+subplot(1,3,3)
+plot(phir)
+title("Phi Right")
