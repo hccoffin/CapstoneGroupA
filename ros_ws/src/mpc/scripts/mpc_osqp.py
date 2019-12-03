@@ -16,6 +16,9 @@ from scipy import sparse
 # IO imports
 import bios
 
+# MCU imports
+import odrive
+
 # Load A,B dynamics matrices, costs P, R and LQR backup gains K from YAML
 params_filename = "../config/controller.yaml"
 control_params = bios.read(params_filename)

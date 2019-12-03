@@ -9,6 +9,7 @@ pip3 install pygame
 pip3 install rospkg
 pip3 install osqp
 pip3 install bios
+pip3 install odrive
 
 cd ros_ws
 catkin_make
