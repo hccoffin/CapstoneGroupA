@@ -1,0 +1,7 @@
+roboassistant:
+  left_torque_controller:
+    type: effort_controllers/joint_effort_controller
+    joint: left_motor_shaft
+  right_torque_controller:
+    type: effort_controllers/joint_effort_controller
+    joint: right_motor_shaft
