@@ -28,6 +28,7 @@ Q = sparse.csc_matrix(control_params['Q'])
 R = sparse.csc_matrix(control_params['R'])
 Qn = 3*Q # Slightly higher weights on final state error
 N = int(control_params['N'])
+N = 100
 dt = control_params['dt']
 nx,nu = Bd.shape
 
@@ -45,7 +46,9 @@ Adx = sparse.csc_matrix(sparse.hstack([Adx1, Adx2]))
 x_plus1 = np.zeros([N*nx,nx])
 x_plus2 = sparse.kron(sparse.eye(N), sparse.eye(nx))
 x_plus = sparse.csc_matrix(sparse.hstack([x_plus1, x_plus2]))
+print(Bd.shape)
 Bdu = sparse.kron(sparse.eye(N), Bd)
+print(Bdu.shape)
 
 Aeq = sparse.hstack([Adx-x_plus, Bdu])
 leq = np.zeros([N*nx, 1])
