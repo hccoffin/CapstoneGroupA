@@ -15,6 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
 	std_msgs
 	sensor_msgs
 	geometry_msgs
+  controller_manager
+  joint_state_controller
+  robot_state_publisher
 )
 
 ## System dependencies are found with CMake's conventions

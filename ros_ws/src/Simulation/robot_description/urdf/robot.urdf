@@ -8,17 +8,17 @@
     name="base_link">
     <inertial>
       <origin
-        xyz="-0.024056 0.21306 -0.00086703"
+        xyz="-0.025547 0.18996 0.0012407"
         rpy="0 0 0" />
       <mass
-        value="6.7886" />
+        value="9.2197" />
       <inertia
-        ixx="0.071127"
-        ixy="-0.00042515"
-        ixz="2.4622E-07"
-        iyy="0.049245"
-        iyz="4.8155E-09"
-        izz="0.095082" />
+        ixx="0.074641"
+        ixy="-0.0004252"
+        ixz="2.3667E-07"
+        iyy="0.064328"
+        iyz="2.026E-09"
+        izz="0.10813" />
     </inertial>
     <visual>
       <origin
@@ -45,20 +45,20 @@
     </collision>
   </link>
   <link
-    name="left_wheel">
+    name="wheelR">
     <inertial>
       <origin
-        xyz="-0.1779 -2.4425E-05 9.6955E-05"
+        xyz="-1.3878E-17 -5.5511E-17 0.0254"
         rpy="0 0 0" />
       <mass
-        value="0.53579" />
+        value="0.53129" />
       <inertia
-        ixx="0.0027072"
-        ixy="4.5959E-08"
-        ixz="-8.9443E-08"
-        iyy="0.0014654"
-        iyz="-1.8453E-07"
-        izz="0.0014661" />
+        ixx="0.0014754"
+        ixy="5.421E-20"
+        ixz="4.3857E-20"
+        iyy="0.0014754"
+        iyz="2.9588E-19"
+        izz="0.0027309" />
     </inertial>
     <visual>
       <origin
@@ -66,12 +66,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://robot_description/meshes/left_wheel.STL" />
+          filename="package://robot_description/meshes/wheelR.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.75294 0.75294 0.75294 1" />
+          rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
     <collision>
@@ -80,127 +80,103 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://robot_description/meshes/left_wheel.STL" />
+          filename="package://robot_description/meshes/wheelR.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="left wheel"
+    name="wheelR"
     type="continuous">
     <origin
-      xyz="-0.067076 -0.0058043 -0.43388"
-      rpy="1.5231 0 0" />
+      xyz="-0.207347025920604 -0.0058042589636423 -0.433884033953984"
+      rpy="1.5707963267949 -0.169516066406974 -1.5707963267949" />
     <parent
       link="base_link" />
     <child
-      link="left_wheel" />
-    <axis
-      xyz="1 0 0" />
-  </joint>
-  <link
-    name="right_wheel">
-    <inertial>
-      <origin
-        xyz="-0.1779 -2.4425E-05 9.6955E-05"
-        rpy="0 0 0" />
-      <mass
-        value="0.53579" />
-      <inertia
-        ixx="0.0027072"
-        ixy="4.5959E-08"
-        ixz="-8.9443E-08"
-        iyy="0.0014654"
-        iyz="-1.8453E-07"
-        izz="0.0014661" />
-    </inertial>
-    <visual>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="package://robot_description/meshes/right_wheel.STL" />
-      </geometry>
-      <material
-        name="">
-        <color
-          rgba="0.75294 0.75294 0.75294 1" />
-      </material>
-    </visual>
-    <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="package://robot_description/meshes/right_wheel.STL" />
-      </geometry>
-    </collision>
-  </link>
-  <joint
-    name="right_wheel"
-    type="continuous">
-    <origin
-      xyz="0.0079815 -0.0058043 -0.43388"
-      rpy="1.983 0 3.1416" />
-    <parent
-      link="base_link" />
-    <child
-      link="right_wheel" />
-    <axis
-      xyz="1 0 0" />
-  </joint>
-  <link
-    name="stationary_shaft">
-    <inertial>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <mass
-        value="0" />
-      <inertia
-        ixx="0"
-        ixy="0"
-        ixz="0"
-        iyy="0"
-        iyz="0"
-        izz="0" />
-    </inertial>
-    <visual>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="package://robot_description/meshes/stationary_shaft.STL" />
-      </geometry>
-      <material
-        name="">
-        <color
-          rgba="1 1 1 1" />
-      </material>
-    </visual>
-    <collision>
-      <origin
-        xyz="0 0 0"
-        rpy="0 0 0" />
-      <geometry>
-        <mesh
-          filename="package://robot_description/meshes/stationary_shaft.STL" />
-      </geometry>
-    </collision>
-  </link>
-  <joint
-    name="stationary_shaft"
-    type="continuous">
-    <origin
-      xyz="0 0 0"
-      rpy="1.5708 0.3143 -1.5708" />
-    <parent
-      link="base_link" />
-    <child
-      link="stationary_shaft" />
+      link="wheelR" />
     <axis
       xyz="0 0 1" />
   </joint>
+  <link
+    name="wheelL">
+    <inertial>
+      <origin
+        xyz="0 5.5511E-17 -0.0254"
+        rpy="0 0 0" />
+      <mass
+        value="0.53129" />
+      <inertia
+        ixx="0.0014754"
+        ixy="5.421E-20"
+        ixz="5.4574E-20"
+        iyy="0.0014754"
+        iyz="2.9588E-19"
+        izz="0.0027309" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/wheelL.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/wheelL.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheelL"
+    type="continuous">
+    <origin
+      xyz="0.148252974079396 -0.0058042589636423 -0.433884033953984"
+      rpy="1.5707963267949 -0.169516066406974 -1.5707963267949" />
+    <parent
+      link="base_link" />
+    <child
+      link="wheelL" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+
+  <transmission name="left_motor">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="wheelL">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="right_motor">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="wheelR">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor1">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <robotNamespace>/roboassistant</robotNamespace>
+  </plugin>
+</gazebo>
+
 </robot>

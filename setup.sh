@@ -11,6 +11,9 @@ pip3 install osqp
 pip3 install bios
 pip3 install odrive
 
+
+sudo apt install ros-melodic-effort-controllers
+
 cd ros_ws
 catkin_make
 source devel/setup.bash
