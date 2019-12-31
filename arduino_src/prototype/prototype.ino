@@ -82,13 +82,13 @@ void setup(void)
   bno.setExtCrystalUse(true);
 
   pid_pitch.begin();          // initialize the PID instance
-  pid_pitch.setpoint(-0.2);    // The "goal" the PID controller tries to "reach"
-  pid_pitch.tune(260, 2, 40);    // Tune the PID, arguments: kP, kI, kD
+  pid_pitch.setpoint(-0.15);    // The "goal" the PID controller tries to "reach"
+  pid_pitch.tune(260, 2, 50);    // Tune the PID, arguments: kP, kI, kD
   pid_pitch.limit(-255, 255);    // limit to -255->255
 
   pid_wheel.begin();          // initialize the PID instance
   pid_wheel.setpoint(0);    // The "goal" the PID controller tries to "reach"
-  pid_wheel.tune(0.0, 0, 0);    // Tune the PID, arguments: kP, kI, kD
+  pid_wheel.tune(0.3, 0, 0);    // Tune the PID, arguments: kP, kI, kD
   pid_wheel.limit(-30, 30);    // limit to -255->255
   
   Serial.println("Exiting setup");
@@ -102,11 +102,13 @@ double set_pitch = -0.4;
 double set_dpitch = 0;
 */
 
+double setpoint_alpha = 0.0001;
+
 void loop(void) 
 {
- 
+  
   // Read Encoder
-  long enc1 = -E1.read();
+  long enc1 = E1.read();
             
   // Read IMU
   sensors_event_t orientationData , angVelocityData;
@@ -115,7 +117,7 @@ void loop(void)
   
   //imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
   double pitch = orientationData.orientation.z;
-  //Serial.println(pitch);
+
   int control_sig = pid_pitch.compute(pitch) + pid_wheel.compute(enc1);
   if (control_sig < 0)
   {

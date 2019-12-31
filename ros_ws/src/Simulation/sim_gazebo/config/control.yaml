@@ -1,0 +1,14 @@
+roboassistant:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+
+  # Torque controllers
+  left_torque_controller:
+    type: effort_controllers/JointEffortController
+    joint: wheelL
+
+  right_torque_controller:
+    type: effort_controllers/JointEffortController
+    joint: wheelR
