@@ -3,6 +3,7 @@
 # General Imports
 import time
 import datetime
+import os
 
 # ROS Imports
 import rospy
@@ -10,16 +11,14 @@ from planner.msg import PlanWithVel
 from controller.msg import WheelEst
 from sensor_msgs.msg import Imu
 
-# Matrix imports
+# Linear Algebra imports
 import numpy as np
 
 # IO imports
 import odrive
-import bios # Load dynamics from yaml
 
 class Controller(object):
 	def __init__(self, _K, _dt, _sim = True):
-		rospy.init_node('controller')
 
 		# Subscribers
 		rospy.Subscriber("/roboassistant/nav_plan", PlanWithVel,self.planCallback)
@@ -49,7 +48,7 @@ class Controller(object):
 
 			# Assemble state estimate and state error
 			state_est = np.zeros([6,1])
-			state_des = np.zeros([6, 1])
+			state_des = np.zeros([6,1])
 			if (self.plan != None):
 				state_des = np.zeros([6, 1])
 
@@ -72,12 +71,16 @@ class Controller(object):
 			rate.sleep()
 
 if __name__ == '__main__':
-	# Load K, dt from yaml
-	params_filename = "../config/control_params.yaml"
-	control_params = bios.read(params_filename)
+  # Logging level DEBUG, INFO, WARN, ERROR, FATAL
+  rospy.init_node('controller',log_level=rospy.DEBUG)
 
-	K = np.array(control_params['K'])
-	dt = control_params['dt']
+	# Load K, dt from ROS parameter server
+  K = np.array(rospy.get_param('controller/lqr_gains')).reshape((2,6))
+  rospy.loginfo("Loaded Gains: ")
+  rospy.loginfo(K)
 
-	c = Controller(K, dt)
-	c.loop()
+  dt = rospy.get_param('dt')
+  rospy.loginfo("Loaded dt: " + str(dt))
+
+  c = Controller(K, dt)
+  c.loop()
