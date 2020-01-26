@@ -1,8 +1,11 @@
 # CapstoneGroupA
 
 
+### Setup Instructions
 
-### Setup Arduino Libraries
-1. Install arduino IDE
-2. Download BasicLinearAlgebra Library
-3. Download Adafruit Sensor Library and Adafruit BN0055 Library
+```bash
+cd ~
+git clone --recursive https://github.com/hccoffin/CapstoneGroupA.git
+cd CapstoneGroupA
+chmod +x setup.sh && ./setup.sh
+```

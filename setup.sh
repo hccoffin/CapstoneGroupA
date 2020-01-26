@@ -12,7 +12,6 @@ pip install odrive
 
 # ROS libraries
 sudo apt install ros-melodic-effort-controllers
-sudo apt install ros-melodic-aruco-detect
 
 cd ros_ws
 catkin_make
