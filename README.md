@@ -22,6 +22,6 @@ All are pre-pended with the name of their parent package
 | localizer/markers     | visualization_msgs/MarkerArray | Detected aruco markers        |
 
 ##### TF Tree
-world->robot_base
+world->base_link
 
 world->aruco_marker
