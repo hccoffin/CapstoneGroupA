@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /RobotModel1
       Splitter Ratio: 0.5
     Tree Height: 592
   - Class: rviz/Selection
@@ -13,7 +14,6 @@ Panels:
   - Class: rviz/Tool Properties
     Expanded:
       - /2D Nav Goal1
-      - /Publish Point1
     Name: Tool Properties
     Splitter Ratio: 0.5886790156364441
   - Class: rviz/Views
@@ -61,6 +61,25 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: ""
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        dummy_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        wheelL:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wheelR:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
       Name: RobotModel
       Robot Description: robot_description
       TF Prefix: ""
@@ -106,9 +125,6 @@ Visualization Manager:
     - Class: rviz/Measure
     - Class: rviz/SetGoal
       Topic: /planner/goal_pose
-    - Class: rviz/PublishPoint
-      Single click: true
-      Topic: /clicked_point
   Value: true
   Views:
     Current:
@@ -150,4 +166,4 @@ Window Geometry:
     collapsed: false
   Width: 1819
   X: 478
-  Y: 179
+  Y: 119
