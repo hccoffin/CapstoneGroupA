@@ -1,0 +1,17 @@
+<launch>
+  <param name="robot_description" textfile="$(find robot_description)/urdf/robot.urdf"/>
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find rviz_interface)/rviz/main_rviz_config.rviz"/>
+
+  <node type="static_transform_publisher" pkg="tf" name="world_dummy_broadcaster" args="0 0 0.5 0 0 0 world dummy_link 100"/>
+
+  <node type="static_transform_publisher" pkg="tf" name="dummy_body_broadcaster" args="0 0 0 0 0 0 dummy_link base_link 10"/>
+
+  <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_st_pub">
+    <remap from="joint_states" to="state_estimator/joint_states" />
+  </node>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <remap from="joint_states" to="state_estimator/joint_states" />
+  </node>
+
+</launch>

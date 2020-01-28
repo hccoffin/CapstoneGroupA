@@ -1,5 +1,3 @@
 <launch>
-	<remap from="initial_pose" to="roboassistant/navigation/initial_pose"/>	
-	<remap from="move_base_simple/goal" to="roboassistant/navigation/goal"/>
-  <node type="rviz" name="rviz" pkg="rviz"/>
+  <include file = "$(find rviz_interface)/launch/rviz_ui.launch"/>
 </launch>
