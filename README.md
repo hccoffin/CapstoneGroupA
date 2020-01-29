@@ -1,6 +1,5 @@
 # CapstoneGroupA
 
-
 ### Setup Instructions
 
 ```bash
@@ -15,13 +14,14 @@ chmod +x setup.sh && ./setup.sh
 ##### Topics
 All are pre-pended with the name of their parent package
 
-| Name                             | Type                           | Description                           |
-| -------------------------------- | ------------------------------ | ------------------------------------- |
-| planner/current_plan             | nav_msgs/Path                  | Current robot navigation plan         |
-| planner/goal_pose                | geometry_msgs/PoseStamped      | Goal position: plan to here           |
-| localizer/markers                | visualization_msgs/MarkerArray | Detected aruco markers                |
-| state_estimator/joint_states     | sensor_msgs/JointStates        | Wheel angles and velocities (radians) |
-| state_estimator/imu              | sensor_msgs/Imu                | High frequency body angle from IMU    |
+| Name                             | Type                           | Description                                     |
+| -------------------------------- | ------------------------------ | ----------------------------------------------- |
+| planner/current_plan             | planner_msgs/PlanWithVel       | Current robot navigation plan with vels         |
+| planner/current_plan_viz         | nav_msgs/Path           | Current robot navigation plan for RVIZ display  |
+| planner/goal_pose                | geometry_msgs/PoseStamped      | Goal position: plan to here                     |
+| localizer/markers                | visualization_msgs/MarkerArray | Detected aruco markers                          | 
+| state_estimator/joint_states     | sensor_msgs/JointStates        | Wheel angles and velocities (radians)           |
+| state_estimator/imu              | sensor_msgs/Imu                | High frequency body angle from IMU              |
 
 ##### TF Tree
 
