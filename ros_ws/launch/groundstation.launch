@@ -1,3 +1,5 @@
 <launch>
   <include file = "$(find rviz_interface)/launch/rviz_ui.launch"/>
+
+  <node pkg="rostopic" type="rostopic" name="ground_heartbeat" args="pub -r 10 ground/heartbeat std_msgs/Int32 1"/>
 </launch>
