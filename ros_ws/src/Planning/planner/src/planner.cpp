@@ -1,5 +1,4 @@
 #include "ros/ros.h"
-#include "planner/PlanWithVel.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -112,6 +111,7 @@ struct State {
 struct MotionPrimitive {
     vector<State> states;
 };
+/*
 struct PrimitiveGenerator {
     int n_a; // number of different accelerations
     int n_alpha; // number of different angular accelerations
@@ -163,10 +163,11 @@ struct PrimitiveGenerator {
         return primitives;
     }
 };
+*/
 vector<MotionPrimitive> generate_path(
     vector<vector<int>>& obstacle_map, vector<double>& map_bounds,
-    State target_state, State initial_state,
-    PrimitiveGenerator primitive_generator
+    State target_state, State initial_state//,
+    //PrimitiveGenerator primitive_generator
 ){
 
 }

@@ -83,6 +83,8 @@ include_directories(
 )
 
 
-add_executable(planner src/planner_node.cpp)
-add_dependencies(planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(planner ${catkin_LIBRARIES})
+add_executable(planner src/planner.cpp)
+
+add_executable(planner_node src/planner_node.cpp)
+add_dependencies(planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(planner_node ${catkin_LIBRARIES})
