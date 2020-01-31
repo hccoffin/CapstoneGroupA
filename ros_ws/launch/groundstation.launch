@@ -1,5 +1,5 @@
 <launch>
-	<remap from="initial_pose" to="roboassistant/navigation/initial_pose"/>	
-	<remap from="move_base_simple/goal" to="roboassistant/navigation/goal"/>
-  <node type="rviz" name="rviz" pkg="rviz"/>
+  <include file = "$(find rviz_interface)/launch/rviz_ui.launch"/>
+
+  <node pkg="rostopic" type="rostopic" name="ground_heartbeat" args="pub -r 10 ground/heartbeat std_msgs/Int32 1"/>
 </launch>

@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   sensor_msgs
-  message_generation
+  planner_msgs
 )
 
 ################################################
@@ -42,21 +42,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-	FILES
-	PlanWithVel.msg
-)
-
+##add_message_files(
+##	FILES
+##	PlanWithVel.msg
+##)
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-	DEPENDENCIES
-	geometry_msgs
-	nav_msgs
-	std_msgs
-)
-
-
+##generate_messages(
+##	DEPENDENCIES
+##	geometry_msgs
+##	nav_msgs
+##	std_msgs
+##)
 
 ###################################
 ## catkin specific configuration ##
@@ -81,8 +78,11 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+	include
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(planner_node planner.cpp)
+
+add_executable(planner src/planner_node.cpp)
+add_dependencies(planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(planner ${catkin_LIBRARIES})

@@ -4,6 +4,23 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="robot_description">
+  <link name="dummy_link">
+  </link>
+
+  <joint
+    name="dummy_joint"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="dummy_link" />
+    <child
+      link="base_link" />
+    <axis
+      xyz="0 0 1" />
+  </joint>
+
   <link
     name="base_link">
     <inertial>
