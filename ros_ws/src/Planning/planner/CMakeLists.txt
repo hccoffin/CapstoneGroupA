@@ -84,3 +84,5 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
 )
+
+add_executable(planner_node planner.cpp)
