@@ -82,9 +82,14 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+## Planner ROS conversions library
+add_library(planner_node STATIC src/planner_node.cpp)
 
+## Planner Executable
 add_executable(planner src/planner.cpp)
+add_dependencies(planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(planner ${catkin_LIBRARIES} planner_node)
 
-add_executable(planner_node src/planner_node.cpp)
-add_dependencies(planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(planner_node ${catkin_LIBRARIES})
+#add_executable(planner_node src/planner_node.cpp)
+#add_dependencies(planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(planner_node ${catkin_LIBRARIES})

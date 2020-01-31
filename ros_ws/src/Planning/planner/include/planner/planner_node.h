@@ -17,9 +17,8 @@ typedef planner_msgs::PlanWithVel PlanMsg;
 typedef geometry_msgs::Pose Pose;
 typedef geometry_msgs::Twist Twist;
 
-
 bool make_plan_msg(std::vector<double> px, std::vector<double> py, std::vector<double> theta,
                       std::vector<double> vx, std::vector<double> vy, std::vector<double> omega,
-                      PlanMsg &plan_msg, VizMsg &viz_msg);
+                      std::vector<double> ts, PlanMsg &plan_msg, VizMsg &viz_msg);
 
 #endif

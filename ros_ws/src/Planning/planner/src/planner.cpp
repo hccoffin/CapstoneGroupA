@@ -5,6 +5,7 @@
 #include "queue"
 #include "vector"
 #include "set"
+#include "planner/planner_node.h"
 
 using namespace std;
 
