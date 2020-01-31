@@ -3,6 +3,7 @@
 
 bool make_plan_msg(std::vector<double> px, std::vector<double> py, std::vector<double> theta,
                       std::vector<double> vx, std::vector<double> vy, std::vector<double> omega,
+                      std::vector<double> ts,
                       PlanMsg &plan_msg, nav_msgs::Path &viz_msg)
 {
   plan_msg.header.stamp = ros::Time::now();
@@ -44,22 +45,4 @@ bool make_plan_msg(std::vector<double> px, std::vector<double> py, std::vector<d
     plan_msg.twists.push_back(t);
   }
   return true;
-}
-
-
-int main(int argc, char** arv)
-{
-
-  /////// Planner constructs plan here /////
-
-  std::vector<double> px, py, theta, vx, vy, w; // Store positions and velocities for each point here
-  PlanMsg plan_msg;
-  VizMsg viz_msg;
-  if(!make_plan_msg(px, py, theta, vx, vy, w, plan_msg, viz_msg)){
-    std::cout << "Bad stuff!" << std::endl;
-    return -1;
-  }
-  // Publisher plan_msg to topic
-
-  return 0;
 }
