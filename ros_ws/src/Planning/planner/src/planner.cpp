@@ -195,4 +195,16 @@ int main(int argc, char **argv) {
     //     }
     //     cout << endl;
     // }
+    /////// Planner constructs plan here /////
+
+      std::vector<double> px, py, theta, vx, vy, w, ts; // Store positions and velocities for each point here
+      PlanMsg plan_msg;
+      VizMsg viz_msg;
+      if(!make_plan_msg(px, py, theta, vx, vy, w, ts, plan_msg, viz_msg)){
+        std::cout << "Bad stuff!" << std::endl;
+        return -1;
+      }
+      // Publisher plan_msg to topic
+
+      return 0;
 }
