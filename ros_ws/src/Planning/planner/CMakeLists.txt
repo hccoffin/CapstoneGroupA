@@ -84,6 +84,7 @@ include_directories(
 
 ## Planner ROS conversions library
 add_library(planner_node STATIC src/planner_node.cpp)
+target_link_libraries(planner_node ${catkin_LIBRARIES})
 
 ## Planner Executable
 add_executable(planner src/planner.cpp)
