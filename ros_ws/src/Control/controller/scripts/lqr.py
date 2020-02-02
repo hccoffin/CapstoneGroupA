@@ -7,7 +7,7 @@ import os
 
 # ROS Imports
 import rospy
-from planner.msg import PlanWithVel
+from planner_msgs.msg import PlanWithVel
 from controller.msg import WheelEst
 from sensor_msgs.msg import Imu
 
@@ -21,19 +21,16 @@ class Controller(object):
 	def __init__(self, _K, _dt, _sim = True):
 
 		# Subscribers
-		rospy.Subscriber("/roboassistant/nav_plan", PlanWithVel,self.planCallback)
-		rospy.Subscriber("/roboassistant/orientation", Imu, self.imuCallback)
+		rospy.Subscriber("/planner/current_plan", PlanWithVel,self.planCallback)
 		
 		# Publishers
-		self.wheel_pub = rospy.Publisher("/roboassistant/wheel_estimate", WheelEst, queue_size = 1)
+		self.wheel_pub = rospy.Publisher("/controller/wheel_estimate", WheelEst, queue_size = 1)
+		self.imu_pub = rospy.Publisher("/controller/imu", Imu, queue_size = 1)
 		
 		self.plan = None
 		self.frequency = 1.0/_dt
 		self.K = _K
 		self.sim = _sim
-
-	def imuCallback(self, newImuMsg):
-		self.imu_msg = newImuMsg
 
 	def planCallback(self, newPlanMsg):
 		self.plan = newPlanMsg
@@ -47,25 +44,33 @@ class Controller(object):
 			# Get encoder feedback from ODrive
 
 			# Assemble state estimate and state error
-			state_est = np.zeros([6,1])
-			state_des = np.zeros([6,1])
+			state_est = np.zeros([4,1])
+			state_des = np.zeros([4,1])
 			if (self.plan != None):
-				state_des = np.zeros([6, 1])
+				state_des = np.zeros([4, 1])
 
 			# Convert state error to torques
 			state_error = state_des - state_est
-			tau_des = -np.dot(self.K,state_error)
+			F_des = -np.matmul(self.K,state_error)
+
+      # Convert F_des to torques for each wheel, add/subtract to turn
+			#print(F_des)
 
 			if (self.sim):
 				# Send torques to gazebo
 				pass
 			else:
-				# Apply torques to ODrive using motor model
+				# Convert desired torques to motors
 				current_des = self.getMotorCurrent(tau_des)
+        # Apply torque to odrive here
 
 			# Send out new encoder data
 			wheel_msg = WheelEst()
 			self.wheel_pub.publish(wheel_msg)
+
+      # Send out imu data
+			imu_msg = Imu()
+			self.imu_pub.publish(imu_msg)
 
 			# Enforce constant rate
 			rate.sleep()
@@ -75,7 +80,7 @@ if __name__ == '__main__':
   rospy.init_node('controller',log_level=rospy.DEBUG)
 
 	# Load K, dt from ROS parameter server
-  K = np.array(rospy.get_param('controller/lqr_gains')).reshape((2,6))
+  K = np.array(rospy.get_param('controller/lqr_gains')).reshape((1,4))
   rospy.loginfo("Loaded Gains: ")
   rospy.loginfo(K)
 
