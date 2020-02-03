@@ -9,7 +9,7 @@
 
   <joint
     name="dummy_joint"
-    type="fixed">
+    type="continuous">
     <origin
       xyz="0 0 0"
       rpy="0 0 0" />
@@ -51,7 +51,6 @@
           rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
-    <!-->
     <collision>
       <origin
         xyz="0 0 0"
@@ -61,7 +60,6 @@
           filename="package://robot_description/meshes/base_link.STL" />
       </geometry>
     </collision>
-    <-->
   </link>
   <link
     name="wheelR">
