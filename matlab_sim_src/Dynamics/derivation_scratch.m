@@ -6,20 +6,21 @@ syms tauL tauR tauPitch real
 q = [theta;phiL;phiR];
 dq = [dtheta;dphiL;dphiR];
 Y = [tauPitch;tauL;tauR];
+
 y = [q;dq];
 syms mw Iw mb Ib real % Mass and Inertia of wheels, Mass and Inertia of body
 syms r l b g real% Radius of wheel, length of body shaft, baseline between wheels, gravity
 
 %% Numerical constants
 Ts_n = 0.01; % Update rate (s)
-mw_n = 0.05; % Mass of wheels (kg)
-Iw_n = 0.0005; % Inertia of wheels (kg*m^2)
-mb_n = 1; % Mass of body (kg)
-Ib_n = 0.01; % Inertia of body (kg*m^2)
+mw_n = 0.5313; % Mass of wheels (kg)
+Iw_n = 0.00273; % Inertia of wheels (kg*m^2)
+mb_n = 8.22; % Mass of body (kg)
+Ib_n = 0.57; % Inertia of body (kg*m^2)
 
-r_n = 0.025; % Wheel radius (m)
-l_n = 0.1; % Length from wheel axle to body COM (m)
-b_n = 0.15; % Baseline distance between wheels (m)
+r_n = 0.101; % Wheel radius (m)
+l_n = 0.49; % Length from wheel axle to body COM (m)
+b_n = 0.406; % Baseline distance between wheels (m)
 
 g_n = 9.81; % Gravitational Constant (m/s^2)
 tauPitch_n = 0; % No actuation at hip

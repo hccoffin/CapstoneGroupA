@@ -22,7 +22,7 @@
     type="spawner"
     respawn="false"
     output="screen"
-    ns="/roboassistant"
+    ns="/controller"
     args="left_torque_controller
     right_torque_controller
 		joint_state_controller"/>
@@ -31,7 +31,7 @@
     pkg="robot_state_publisher" type="robot_state_publisher"
     respawn="false"
     output="screen">
-    <remap from="/joint_states" to="/roboassistant/joint_states"/>
+    <remap from="/joint_states" to="/controller/joint_states"/>
   </node>
 
 </launch>
