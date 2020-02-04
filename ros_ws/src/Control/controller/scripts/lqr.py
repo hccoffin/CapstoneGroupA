@@ -22,7 +22,8 @@ import odrive
 class Controller(object):
     def __init__(self, _K, _dt, _sim = True):
 
-        
+        self.tau_min = -5
+        self.tau_max = 5
         self.wheel_radius = 0.1
         # Subscribers
         rospy.Subscriber("/planner/current_plan", PlanWithVel,self.planCallback)
@@ -73,17 +74,27 @@ class Controller(object):
 
             # Convert state error to torques
             state_error = state_des - state_est
-            f_des = -np.matmul(self.K,state_error)
-            
+            tau_des = -np.matmul(self.K,state_error)
+            print(tau_des)
             # Convert F_des to tau1 and tau2
-            tau_des = f_des*self.wheel_radius
+            #tau_des = f_des*self.wheel_radius
             left_torque = tau_des/2.0
+            if (left_torque > self.tau_max):
+                left_torque = self.tau_max
+            elif(left_torque < self.tau_min):
+                left_torque = self.tau_min
+
             right_torque = tau_des/2.0
+            if (right_torque > self.tau_max):
+                right_torque = self.tau_max
+            elif(right_torque < self.tau_min):
+                right_torque = self.tau_min
+
 
             if (self.sim):
                 # Send torques to gazebo
-                self.left_torque_pub.publish(left_torque)
-                self.right_torque_pub.publish(right_torque)
+                self.left_torque_pub.publish(-left_torque)
+                self.right_torque_pub.publish(-right_torque)
                 
             else:
                 #Convert desired torques to motors
