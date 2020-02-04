@@ -31,7 +31,9 @@ B = [zeros(2,1);
      -inv(E)*H];
 
 
-Q = diag([1 1 1 1]);
-R = 1;
+[Ad, Bd] = c2d(A, B, dt);
+ 
+Q = diag([0.01 10 0.1 1]);
+R = 3;
 
 [K,S,E] = lqr(A,B,Q,R);
