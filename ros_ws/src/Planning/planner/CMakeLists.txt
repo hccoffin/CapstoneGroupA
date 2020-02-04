@@ -67,8 +67,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES planner
-   CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime
-#  DEPENDS system_lib
+   CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy std_msgs message_runtime planner_msgs
 )
 
 ###########
@@ -78,19 +77,16 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-	include
-  ${catkin_INCLUDE_DIRS}
+    include
+    ${catkin_INCLUDE_DIRS}
 )
 
 ## Planner ROS conversions library
 add_library(planner_node STATIC src/planner_node.cpp)
+add_dependencies(planner_node planner_msgs_generate_messages_cpp)
 target_link_libraries(planner_node ${catkin_LIBRARIES})
 
 ## Planner Executable
 add_executable(planner src/planner.cpp)
-add_dependencies(planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} planner_msgs_generate_messages_cpp)
 target_link_libraries(planner ${catkin_LIBRARIES} planner_node)
-
-#add_executable(planner_node src/planner_node.cpp)
-#add_dependencies(planner_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-#target_link_libraries(planner_node ${catkin_LIBRARIES})
