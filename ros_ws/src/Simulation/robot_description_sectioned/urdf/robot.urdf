@@ -50,6 +50,7 @@
           rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
+    <!-->
     <collision>
       <origin
         xyz="0 0 0"
@@ -59,6 +60,7 @@
           filename="package://robot_description/meshes/base_link.STL" />
       </geometry>
     </collision>
+    <-->
   </link>
   <link
     name="wheelR">
@@ -358,13 +360,13 @@
     <gravity>true</gravity>
     <sensor name="imu_sensor" type="imu">
       <always_on>true</always_on>
-      <update_rate>100</update_rate>
+      <update_rate>300</update_rate>
       <visualize>true</visualize>
       <topic>/controller/imu</topic>
       <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
         <topicName>/controller/imu</topicName>
         <bodyName>imu_link</bodyName>
-        <updateRateHZ>100.0</updateRateHZ>
+        <updateRateHZ>300.0</updateRateHZ>
         <gaussianNoise>0.0</gaussianNoise>
         <xyzOffset>0 0 0</xyzOffset>
         <rpyOffset>0 0 0</rpyOffset>
