@@ -1,6 +1,6 @@
 <launch>
   <rosparam>
-    controller/lqr_gains: [1,63.91,1.6352,15.8353]
+    controller/lqr_gains: [0.0577,23.3494,0.4542,4.5698]
     dt: 0.01
   </rosparam>
   <node name="controller" pkg="controller" type="lqr.py" output="screen" />
