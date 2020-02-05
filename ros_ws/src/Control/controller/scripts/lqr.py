@@ -15,16 +15,17 @@ import tf
 
 # Linear Algebra imports
 import numpy as np
+import control
 
 # IO imports
 import odrive
 
 class Controller(object):
-    def __init__(self, _K, _dt, _sim = True):
+    def __init__(self, _dt, _sim = True):
 
-        self.tau_min = -5
-        self.tau_max = 5
-        self.wheel_radius = 0.1
+        self.tau_min = -3
+        self.tau_max = 3
+
         # Subscribers
         rospy.Subscriber("/planner/current_plan", PlanWithVel,self.planCallback)
         if (_sim):
@@ -40,11 +41,53 @@ class Controller(object):
 
         self.plan = None
         self.frequency = 1.0/_dt
-        self.K = _K
         self.sim = _sim
 
         self.pitch = 0
         self.dpitch = 0
+
+    def setup(self):
+        mw = 0.5313 # Mass of wheels (kg)
+        Iw = 0.00273 # Inertia of wheels (kg*m^2)
+        m = 8.22 # Mass of body (kg)
+        I = 0.067 # Inertia of body (kg*m^2)
+
+        R = 0.101 # Wheel radius (m)
+        L = 0.49 # Length from wheel axle to body COM (m)
+
+        g = 9.81 # Gravitational Constant (m/s^2)
+
+        By = 1.0 # Damping coefficient on rolling (wheel/floor)
+        Bm = 0.0 # Damping coefficient on joint (wheel/body)
+
+        mw = mw * 2
+        Iw = Iw * 2
+
+        E = np.array([[Iw + (mw+m)*R**2, m*R*L],[m*R*L, I + m*L**2]])
+        F = np.array([[By+Bm, -Bm],[-Bm, Bm]])
+        G = np.array([0,-m*g*L]).reshape(2,1)
+        H = np.array([1,-1]).reshape(2,1)
+
+        Einv = np.linalg.inv(E)
+        A1 = np.hstack((np.zeros((2,2)), np.eye(2)))
+        
+        print(A1)
+        EinvG = np.matmul(Einv,G).reshape(2,1)
+        EinvF = np.matmul(Einv,F).reshape(2,2)
+        
+        A2 = np.hstack((np.zeros((2,1)),-EinvG, -EinvF))
+        A = np.vstack((A1,A2))
+
+        EinvH = np.matmul(Einv, H)
+        B = np.vstack((np.zeros((2,1)), -EinvH))
+
+        Q = np.diag([0.01,10,0.1,1])
+        R = 1
+
+        K,S,E = control.lqr(A,B,Q,R)
+        print(K)
+        self.K = K
+
 
     def imuCallback(self, imuMsg):
         quat_imu = imuMsg.orientation
@@ -115,14 +158,16 @@ if __name__ == '__main__':
     # Logging level DEBUG, INFO, WARN, ERROR, FATAL
     rospy.init_node('controller',log_level=rospy.DEBUG)
 
-    time.sleep(1)
+    time.sleep(0.2)
     # Load K, dt from ROS parameter server
-    K = np.array(rospy.get_param('controller/lqr_gains')).reshape((1,4))
-    rospy.loginfo("Loaded Gains: ")
-    rospy.loginfo(K)
+    #K = np.array(rospy.get_param('controller/lqr_gains')).reshape((1,4))
+    #rospy.loginfo("Loaded Gains: ")
+    #rospy.loginfo(K)
 
     dt = rospy.get_param('dt')
+    dt = 0.004
     rospy.loginfo("Loaded dt: " + str(dt))
 
-    c = Controller(K, dt)
+    c = Controller(dt)
+    c.setup()
     c.loop()
