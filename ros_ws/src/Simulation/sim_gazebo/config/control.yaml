@@ -7,8 +7,8 @@ controller:
   # Torque controllers
   left_torque_controller:
     type: effort_controllers/JointEffortController
-    joint: wheelL
+    joint: wheel_l
 
   right_torque_controller:
     type: effort_controllers/JointEffortController
-    joint: wheelR
+    joint: wheel_r

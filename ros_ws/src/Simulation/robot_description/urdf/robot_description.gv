@@ -1,0 +1,20 @@
+digraph G {
+node [shape=box];
+"dummy_link" [label="dummy_link"];
+"base_link" [label="base_link"];
+"camera" [label="camera"];
+"imu" [label="imu"];
+"wheel_l" [label="wheel_l"];
+"wheel_r" [label="wheel_r"];
+node [shape=ellipse, color=blue, fontcolor=blue];
+"dummy_link" -> "dummy_joint" [label="xyz: 0 0 0 \nrpy: 0 -0 0"]
+"dummy_joint" -> "base_link"
+"base_link" -> "camera" [label="xyz: 0 0.12978 0.6223 \nrpy: 1.5708 -4.23516e-22 -3.14159"]
+"camera" -> "camera"
+"base_link" -> "imu" [label="xyz: -0.0093889 -0.05715 -0.0127 \nrpy: -1.5708 -0 -1.5708"]
+"imu" -> "imu"
+"base_link" -> "wheel_l" [label="xyz: -0.1281 0 0 \nrpy: 1.5708 -4.23516e-22 -3.14159"]
+"wheel_l" -> "wheel_l"
+"base_link" -> "wheel_r" [label="xyz: 0.1281 0 0 \nrpy: 3.14159 0 0"]
+"wheel_r" -> "wheel_r"
+}
