@@ -47,42 +47,22 @@ class Controller(object):
         self.dpitch = 0
 
     def setup(self):
-        mw = 0.5313 # Mass of wheels (kg)
-        Iw = 0.00273 # Inertia of wheels (kg*m^2)
-        m = 8.22 # Mass of body (kg)
-        I = 0.067 # Inertia of body (kg*m^2)
+        A = np.array([[0,0,0,1,0,0],
+                      [0,0,0,0,1,0],
+                      [0,0,0,0,0,1],
+                      [0,0,-38.4884,0,0,0],
+                      [0,0,-38.4884,0,0,0],
+                      [0,0,14.0310,0,0,0]])
 
-        R = 0.101 # Wheel radius (m)
-        L = 0.49 # Length from wheel axle to body COM (m)
+        B = np.array([[0,0],
+                      [0,0],
+                      [0,0],
+                      [256.5135,-210.3399],
+                      [-210.3399,256.5135],
+                      [-2.9347,-2.9347]])
 
-        g = 9.81 # Gravitational Constant (m/s^2)
-
-        By = 1.0 # Damping coefficient on rolling (wheel/floor)
-        Bm = 0.0 # Damping coefficient on joint (wheel/body)
-
-        mw = mw * 2
-        Iw = Iw * 2
-
-        E = np.array([[Iw + (mw+m)*R**2, m*R*L],[m*R*L, I + m*L**2]])
-        F = np.array([[By+Bm, -Bm],[-Bm, Bm]])
-        G = np.array([0,-m*g*L]).reshape(2,1)
-        H = np.array([1,-1]).reshape(2,1)
-
-        Einv = np.linalg.inv(E)
-        A1 = np.hstack((np.zeros((2,2)), np.eye(2)))
-        
-        print(A1)
-        EinvG = np.matmul(Einv,G).reshape(2,1)
-        EinvF = np.matmul(Einv,F).reshape(2,2)
-        
-        A2 = np.hstack((np.zeros((2,1)),-EinvG, -EinvF))
-        A = np.vstack((A1,A2))
-
-        EinvH = np.matmul(Einv, H)
-        B = np.vstack((np.zeros((2,1)), -EinvH))
-
-        Q = np.diag([0.01,10,0.1,1])
-        R = 1
+        Q = np.diag([0.01,0.01,10,0.1,0.1,1])
+        R = np.diag([1,1])
 
         K,S,E = control.lqr(A,B,Q,R)
         print(K)
@@ -110,10 +90,10 @@ class Controller(object):
             # Get encoder feedback from ODrive
 
             # Assemble state estimate and state error
-            state_est = np.array([0,self.pitch,0,self.dpitch]).reshape([4,1])
-            state_des = np.zeros([4,1])
+            state_est = np.array([0,0,self.pitch,0,0,self.dpitch]).reshape([6,1])
+            state_des = np.zeros([6,1])
             if (self.plan == None):
-                state_des = np.zeros([4, 1])
+                state_des = np.zeros([6, 1])
 
             # Convert state error to torques
             state_error = state_des - state_est
@@ -121,13 +101,13 @@ class Controller(object):
             print(tau_des)
             # Convert F_des to tau1 and tau2
             #tau_des = f_des*self.wheel_radius
-            left_torque = tau_des/2.0
+            left_torque = tau_des[0]
             if (left_torque > self.tau_max):
                 left_torque = self.tau_max
             elif(left_torque < self.tau_min):
                 left_torque = self.tau_min
 
-            right_torque = tau_des/2.0
+            right_torque = tau_des[1]
             if (right_torque > self.tau_max):
                 right_torque = self.tau_max
             elif(right_torque < self.tau_min):
@@ -164,10 +144,10 @@ if __name__ == '__main__':
     #rospy.loginfo("Loaded Gains: ")
     #rospy.loginfo(K)
 
-    dt = rospy.get_param('dt')
+    #dt = rospy.get_param('dt')
     dt = 0.004
     rospy.loginfo("Loaded dt: " + str(dt))
 
     c = Controller(dt)
     c.setup()
-    c.loop()
+    #c.loop()
