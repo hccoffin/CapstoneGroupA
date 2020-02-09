@@ -1,9 +1,16 @@
-R = 0.10;
-L = 0.50;
-mw = 0.5;
-mb = 8;
-Iw = 0.05;
-Ib = 0.6;
+R = 0.10; % Wheel radius
+L = 0.40; % COM distance from axle
+mw = 0.5; % Mass of one wheel (kg)
+mb = 6; % Mass of body (kg)
+Iw = 0.02; % Wheel Inertia about axis (one wheel) (kg*m^2)
+Ib = 0.4; % Body Inertia about COM (kg*m^2)
+By = 0.2; % Rolling damping ratio (floor)
+Bm = 0.02; % Friction damping ratio (joint)
+
+params_n = [R L mw mb Iw Ib By Bm];
+syms R L mw mb Iw Ib By Bm real
+params = [R L mw mb Iw Ib By Bm];
+
 
 g = 9.81;
 
@@ -32,42 +39,54 @@ C_bar = get_coriolis_matrix(M_bar,q,dq);
 
 N_bar = jacobian(V,q)';
 
-ddq = inv(M_bar)*(Y-C_bar*dq-N_bar);
+Y_dissipated = [By+Bm 0     -Bm;
+                0     By+Bm -Bm;
+                -Bm   -Bm    Bm]*dq;
 
+ddq = inv(M_bar)*(Y-C_bar*dq-N_bar-Y_dissipated);
 
 %% Compute Linear Update Model
 lin_sym_vars = [q;dq;Y(1:2)];
 lin_num_vars = [0;0;0;0;0;0;0;0];
 
 J_ddq = jacobian(ddq, lin_sym_vars);
-J_ddq_n = double(subs(J_ddq, lin_sym_vars, lin_num_vars));
+J_ddq_n = subs(J_ddq, lin_sym_vars, lin_num_vars);
 
 ddq_lin = simplify(subs(ddq, lin_sym_vars, lin_num_vars) + J_ddq_n * (lin_sym_vars - lin_num_vars),5);
 
-matlabFunction(ddq_lin,'File','compute_linearized_ddq','Comments','Version: 1.0', 'Vars', {lin_sym_vars})
-matlabFunction(ddq,'File','compute_ddq','Comments','Version: 1.1', 'Vars', {lin_sym_vars})
+A_con = simplify([zeros(3) eye(3); equationsToMatrix(ddq_lin, [q;dq])]);
+B_con = simplify([zeros(3,2); equationsToMatrix(ddq_lin, Y(1:2))]);
 
-A_con = [zeros(3) eye(3); double(equationsToMatrix(ddq_lin, [q;dq]))];
+ddq_n = subs(ddq, params, params_n);
+ddq_lin_n = subs(ddq_lin, params, params_n);
 
-B_con = [zeros(3,2); double(equationsToMatrix(ddq_lin, Y(1:2)))];
+matlabFunction(ddq_lin_n,'File','compute_linearized_ddq','Comments','Version: 1.0', 'Vars', {lin_sym_vars})
+matlabFunction(ddq_n,'File','compute_ddq','Comments','Version: 1.1', 'Vars', {lin_sym_vars})
+matlabFunction(A_con,'File','compute_A','Comments','Version: 1.0', 'Vars', params)
+matlabFunction(B_con,'File','compute_B','Comments','Version: 1.0', 'Vars', params)
+
+params_arg = mat2cell(params_n,1,ones(1,numel(params_n)));
+A = compute_A(params_arg{:});
+B = compute_B(params_arg{:});
+
 
 %% Quick test of linearization
-q_test = [0,0,0.3,0,0,0]';
+q_test = [0,0,0,0,0,0]';
 u_test = [0,0]';
 
-compute_ddq([q_test; u_test])
-compute_linearized_ddq([q_test; u_test])
-A_con*q_test + B_con*u_test
+compute_ddq([q_test; u_test]);
+compute_linearized_ddq([q_test; u_test]);
+A*q_test + B*u_test;
 
 %% LQR
 
 Q = diag([0.01 0.01 10 0.1 0.1 1]);
 R = 1;
 
-K = lqr(A_con,B_con,Q,R);
+K = lqr(A,B,Q,R);
 
 %% ODE45
-tau_min = -4; tau_max = 4;
+tau_min = -3; tau_max = 3;
 limit_torque = @(tau) max(min(tau, tau_max),tau_min);
 
 update_fn = @(t,x) [x(4:6); compute_ddq([x; limit_torque(-K*x)])];
