@@ -98,7 +98,7 @@ class Controller(object):
             # Convert state error to torques
             state_error = state_des - state_est
             tau_des = -np.matmul(self.K,state_error)
-            print(tau_des)
+            
             # Convert F_des to tau1 and tau2
             #tau_des = f_des*self.wheel_radius
             left_torque = tau_des[0]
@@ -145,9 +145,9 @@ if __name__ == '__main__':
     #rospy.loginfo(K)
 
     #dt = rospy.get_param('dt')
-    dt = 0.004
+    dt = 0.008
     rospy.loginfo("Loaded dt: " + str(dt))
 
     c = Controller(dt)
     c.setup()
-    #c.loop()
+    c.loop()
