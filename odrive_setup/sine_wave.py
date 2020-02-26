@@ -23,7 +23,7 @@ odrv0.axis0.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
 print("Starting forcing function sweep")
 
 # Setup forcing function
-tf = 12
+tf = 30
 dt = 0.005
 omega = 6
 mag = 5
