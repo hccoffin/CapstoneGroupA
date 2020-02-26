@@ -18,6 +18,9 @@ sudo apt install ros-melodic-tf2-geometry-msgs
 sudo apt install ros-melodic-usb-cam
 sudo apt install ros-melodic-fiducials
 
+# I2C Libraries
+sudo apt install libi2c-dev i2c-tools
+
 cd ros_ws
 catkin_make
 source devel/setup.bash
