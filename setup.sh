@@ -15,6 +15,8 @@ sudo apt install ros-melodic-joint-state-controllers
 sudo apt install ros-melodic-joint-state-publishers
 sudo apt install ros-melodic-tf2
 sudo apt install ros-melodic-tf2-geometry-msgs
+sudo apt install ros-melodic-usb-cam
+sudo apt install ros-melodic-fiducials
 
 cd ros_ws
 catkin_make
