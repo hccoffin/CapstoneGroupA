@@ -4,12 +4,12 @@
      For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
   name="robot_description">
-  <link name="dummy_link">
-  </link>
 
+
+<link name="dummy_link"/>
   <joint
     name="dummy_joint"
-    type="continuous">
+    type="fixed">
     <origin
       xyz="0 0 0"
       rpy="0 0 0" />
@@ -21,21 +21,24 @@
       xyz="0 0 1" />
   </joint>
 
+
   <link
     name="base_link">
     <inertial>
+    <!-- Do not know why the COM is up in the y-direction -->
       <origin
-        xyz="-0.025547 0.18996 0.0012407"
+        xyz="-0.0002605 0.37184 -0.0011141" 
         rpy="0 0 0" />
       <mass
-        value="9.2197" />
+        value="4.9107" />
+    <!-- Manually edited these values -->
       <inertia
-        ixx="0.074641"
-        ixy="-0.0004252"
-        ixz="2.3667E-07"
-        iyy="0.064328"
-        iyz="2.026E-09"
-        izz="0.10813" />
+        ixx="0.4438" 
+        ixy="0"
+        ixz="0"
+        iyy="0.4659"
+        iyz="0"
+        izz="0.0779" />
     </inertial>
     <visual>
       <origin
@@ -51,6 +54,7 @@
           rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
+    <!-->
     <collision>
       <origin
         xyz="0 0 0"
@@ -60,22 +64,23 @@
           filename="package://robot_description/meshes/base_link.STL" />
       </geometry>
     </collision>
+    <-->
   </link>
   <link
-    name="wheelR">
+    name="wheel_r">
     <inertial>
       <origin
-        xyz="-1.3878E-17 -5.5511E-17 0.0254"
+        xyz="0.057878 -2.6487E-09 8.8445E-05"
         rpy="0 0 0" />
       <mass
-        value="0.53129" />
+        value="0.60147" />
       <inertia
-        ixx="0.0014754"
-        ixy="5.421E-20"
-        ixz="4.3857E-20"
-        iyy="0.0014754"
-        iyz="2.9588E-19"
-        izz="0.0027309" />
+        ixx="0.0021311"
+        ixy="-6.6647E-11"
+        ixz="-9.7953E-08"
+        iyy="0.0012411"
+        iyz="-1.447E-10"
+        izz="0.0012419" />
     </inertial>
     <visual>
       <origin
@@ -83,12 +88,12 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://robot_description/meshes/wheelR.STL" />
+          filename="package://robot_description/meshes/wheel_r.STL" />
       </geometry>
       <material
         name="">
         <color
-          rgba="0.79216 0.81961 0.93333 1" />
+          rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
     <collision>
@@ -97,38 +102,38 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://robot_description/meshes/wheelR.STL" />
+          filename="package://robot_description/meshes/wheel_r.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="wheelR"
+    name="wheel_r"
     type="continuous">
     <origin
-      xyz="-0.207347025920604 -0.0058042589636423 -0.433884033953984"
-      rpy="1.5707963267949 -0.169516066406974 -1.5707963267949" />
+      xyz="0.1281 0 0"
+      rpy="-3.1416 0 0" />
     <parent
       link="base_link" />
     <child
-      link="wheelR" />
+      link="wheel_r" />
     <axis
-      xyz="0 0 1" />
+      xyz="0 0 0" />
   </joint>
   <link
-    name="wheelL">
+    name="wheel_l">
     <inertial>
       <origin
-        xyz="0 5.5511E-17 -0.0254"
+        xyz="0.057878 -2.6487E-09 8.8445E-05"
         rpy="0 0 0" />
       <mass
-        value="0.53129" />
+        value="0.60147" />
       <inertia
-        ixx="0.0014754"
-        ixy="5.421E-20"
-        ixz="5.4574E-20"
-        iyy="0.0014754"
-        iyz="2.9588E-19"
-        izz="0.0027309" />
+        ixx="0.0021311"
+        ixy="-6.6647E-11"
+        ixz="-9.7953E-08"
+        iyy="0.0012411"
+        iyz="-1.447E-10"
+        izz="0.0012419" />
     </inertial>
     <visual>
       <origin
@@ -136,7 +141,60 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://robot_description/meshes/wheelL.STL" />
+          filename="package://robot_description/meshes/wheel_l.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/wheel_l.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="wheel_l"
+    type="continuous">
+    <origin
+      xyz="-0.1281 0 0"
+      rpy="1.5708 0 3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="wheel_l" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="camera">
+    <inertial>
+      <origin
+        xyz="0.0002462 -6.0567E-05 -0.013048"
+        rpy="0 0 0" />
+      <mass
+        value="0.044752" />
+      <inertia
+        ixx="3.9447E-06"
+        ixy="-2.8014E-09"
+        ixz="2.4434E-07"
+        iyy="2.7362E-05"
+        iyz="-1.174E-09"
+        izz="2.7278E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/camera.STL" />
       </geometry>
       <material
         name="">
@@ -150,27 +208,84 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://robot_description/meshes/wheelL.STL" />
+          filename="package://robot_description/meshes/camera.STL" />
       </geometry>
     </collision>
   </link>
   <joint
-    name="wheelL"
-    type="continuous">
+    name="camera"
+    type="fixed">
     <origin
-      xyz="0.148252974079396 -0.0058042589636423 -0.433884033953984"
-      rpy="1.5707963267949 -0.169516066406974 -1.5707963267949" />
+      xyz="0 0.12978 0.6223"
+      rpy="1.5708 0 3.1416" />
     <parent
       link="base_link" />
     <child
-      link="wheelL" />
+      link="camera" />
     <axis
-      xyz="0 0 1" />
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="imu">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/imu.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/imu.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="imu"
+    type="fixed">
+    <origin
+      xyz="-0.0093889 -0.05715 -0.0127"
+      rpy="-1.5708 0 -1.5708" />
+    <parent
+      link="base_link" />
+    <child
+      link="imu" />
+    <axis
+      xyz="0 0 0" />
   </joint>
 
+
+
+
+  <!--> GAZEBO PLUGINS! <-->
   <transmission name="left_motor">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="wheelL">
+    <joint name="wheel_l">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
     <actuator name="motor1">
@@ -181,7 +296,7 @@
 
   <transmission name="right_motor">
     <type>transmission_interface/SimpleTransmission</type>
-    <joint name="wheelR">
+    <joint name="wheel_r">
       <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
     </joint>
     <actuator name="motor1">
@@ -192,25 +307,25 @@
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotNamespace>/roboassistant</robotNamespace>
+      <robotNamespace>/controller</robotNamespace>
     </plugin>
   </gazebo>
 
-  <gazebo reference="base_link">
+  <gazebo reference="imu">
     <gravity>true</gravity>
     <sensor name="imu_sensor" type="imu">
       <always_on>true</always_on>
-      <update_rate>100</update_rate>
+      <update_rate>300</update_rate>
       <visualize>true</visualize>
-      <topic>/roboassistant/imu</topic>
+      <topic>/controller/imu</topic>
       <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
-        <topicName>/roboassistant/imu</topicName>
-        <bodyName>base_link</bodyName>
-        <updateRateHZ>100.0</updateRateHZ>
+        <topicName>/controller/imu</topicName>
+        <bodyName>imu</bodyName>
+        <updateRateHZ>300.0</updateRateHZ>
         <gaussianNoise>0.0</gaussianNoise>
         <xyzOffset>0 0 0</xyzOffset>
         <rpyOffset>0 0 0</rpyOffset>
-        <frameName>base_link</frameName>
+        <frameName>imu</frameName>
       </plugin>
       <pose>0 0 0 0 0 0</pose>
     </sensor>
