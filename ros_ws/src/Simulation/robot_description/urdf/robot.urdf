@@ -5,7 +5,8 @@
 <robot
   name="robot_description">
 
-  <link name="dummy_link"/>
+
+<link name="dummy_link"/>
   <joint
     name="dummy_joint"
     type="fixed">
@@ -20,21 +21,24 @@
       xyz="0 0 1" />
   </joint>
 
+
   <link
     name="base_link">
     <inertial>
+    <!-- Do not know why the COM is up in the y-direction -->
       <origin
-        xyz="-0.0002605 0.37184 -0.0011141"
+        xyz="-0.0002605 0.37184 -0.0011141" 
         rpy="0 0 0" />
       <mass
         value="4.9107" />
+    <!-- Manually edited these values -->
       <inertia
-        ixx="0.033566"
-        ixy="-6.2188E-11"
-        ixz="2.4497E-07"
-        iyy="0.029042"
-        iyz="3.6351E-08"
-        izz="0.042561" />
+        ixx="0.4438" 
+        ixy="0"
+        ixz="0"
+        iyy="0.4659"
+        iyz="0"
+        izz="0.0779" />
     </inertial>
     <visual>
       <origin
@@ -50,6 +54,7 @@
           rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
+    <!-->
     <collision>
       <origin
         xyz="0 0 0"
@@ -59,22 +64,23 @@
           filename="package://robot_description/meshes/base_link.STL" />
       </geometry>
     </collision>
+    <-->
   </link>
   <link
     name="wheel_r">
     <inertial>
       <origin
-        xyz="0.0578777045980548 -2.64867896708683E-09 8.84445080275366E-05"
+        xyz="0.057878 -2.6487E-09 8.8445E-05"
         rpy="0 0 0" />
       <mass
-        value="0.60146848738564" />
+        value="0.60147" />
       <inertia
-        ixx="0.00213114562868243"
-        ixy="-6.66467766009435E-11"
-        ixz="-9.79531742735922E-08"
-        iyy="0.00124108974200535"
-        iyz="-1.44700145504625E-10"
-        izz="0.00124186405266912" />
+        ixx="0.0021311"
+        ixy="-6.6647E-11"
+        ixz="-9.7953E-08"
+        iyy="0.0012411"
+        iyz="-1.447E-10"
+        izz="0.0012419" />
     </inertial>
     <visual>
       <origin
@@ -87,7 +93,7 @@
       <material
         name="">
         <color
-          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+          rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
     <collision>
@@ -117,17 +123,17 @@
     name="wheel_l">
     <inertial>
       <origin
-        xyz="0.0578777045980547 -2.64867904017142E-09 8.84445080282169E-05"
+        xyz="0.057878 -2.6487E-09 8.8445E-05"
         rpy="0 0 0" />
       <mass
-        value="0.601468487385641" />
+        value="0.60147" />
       <inertia
-        ixx="0.00213114562868243"
-        ixy="-6.66467763469269E-11"
-        ixz="-9.79531742735019E-08"
-        iyy="0.00124108974200535"
-        iyz="-1.44700145434441E-10"
-        izz="0.00124186405266912" />
+        ixx="0.0021311"
+        ixy="-6.6647E-11"
+        ixz="-9.7953E-08"
+        iyy="0.0012411"
+        iyz="-1.447E-10"
+        izz="0.0012419" />
     </inertial>
     <visual>
       <origin
@@ -140,7 +146,7 @@
       <material
         name="">
         <color
-          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+          rgba="0.75294 0.75294 0.75294 1" />
       </material>
     </visual>
     <collision>
@@ -170,17 +176,17 @@
     name="camera">
     <inertial>
       <origin
-        xyz="0.000246196751964501 -6.0567336562789E-05 -0.0130484997989809"
+        xyz="0.0002462 -6.0567E-05 -0.013048"
         rpy="0 0 0" />
       <mass
-        value="0.0447522009688967" />
+        value="0.044752" />
       <inertia
-        ixx="3.94471808492068E-06"
-        ixy="-2.8013899701667E-09"
-        ixz="2.44341099254186E-07"
-        iyy="2.73620912546541E-05"
-        iyz="-1.17396575552847E-09"
-        izz="2.72775274833281E-05" />
+        ixx="3.9447E-06"
+        ixy="-2.8014E-09"
+        ixz="2.4434E-07"
+        iyy="2.7362E-05"
+        iyz="-1.174E-09"
+        izz="2.7278E-05" />
     </inertial>
     <visual>
       <origin
@@ -193,7 +199,7 @@
       <material
         name="">
         <color
-          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+          rgba="0.79216 0.81961 0.93333 1" />
       </material>
     </visual>
     <collision>
@@ -272,6 +278,8 @@
     <axis
       xyz="0 0 0" />
   </joint>
+
+
 
 
   <!--> GAZEBO PLUGINS! <-->
