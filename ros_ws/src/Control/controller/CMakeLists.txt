@@ -31,6 +31,8 @@ generate_messages(
 	std_msgs
 )
 
+
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -98,6 +100,8 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
+	scripts/test_traj_opt
+  	scripts/traj_opt_ros_node
 	scripts/mpc_osqp
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

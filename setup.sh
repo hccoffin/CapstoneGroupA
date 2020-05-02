@@ -8,6 +8,10 @@ sudo apt update
 pip install rospkg
 pip install bios
 pip install odrive
+pip install casadi
+
+pip uninstall em
+pip install empy
 
 # ROS libraries
 sudo apt install ros-melodic-effort-controllers
