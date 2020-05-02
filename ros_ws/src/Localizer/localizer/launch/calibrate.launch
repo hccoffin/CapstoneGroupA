@@ -1,0 +1,14 @@
+<launch>
+	<arg name="video_device" default="/dev/video1"/>
+	<arg name="camera_info_file" default="file://$(find localizer)/camera_info/head_camera.yaml"/>
+	<include file="$(find localizer)/launch/camera.launch">
+		<arg name="video_device" value="$(arg video_device)"/>
+		<arg name="camera_info_file" value="$(arg camera_info_file)"/>
+	</include>
+
+	<node 
+		name="calibrator" pkg="camera_calibration" 
+		type="cameracalibrator.py" output="screen"
+		args="--size 8x6 --square .025 image:=/usb_cam/image_raw camera:=/usb_cam"
+	/>
+</launch>

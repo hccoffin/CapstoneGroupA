@@ -5,22 +5,27 @@
     <arg name="odom_frame" default="odom"/>
     <arg name="base_frame" default="base_link"/>
 
-    <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <!-- <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
         <param name="video_device" value="$(arg video_device)" />
-	<param name="camera_info_url" value="$(arg camera_info_file)" />
+        <param name="camera_info_url" value="$(arg camera_info_file)" />
         <param name="image_width" value="640" />
         <param name="image_height" value="480" />
         <param name="pixel_format" value="yuyv" />
         <param name="io_method" value="mmap"/>
-    </node>
+    </node> -->
 
-    <node pkg="aruco_detect" name="aruco_detect" 
-        type="aruco_detect" output="screen" respawn="false">
+    <include file="$(find localizer)/launch/camera.launch">
+        <arg name="video_device" value="$(arg video_device)"/>
+        <arg name="camera_info_file" value="$(arg camera_info_file)"/>
+    </include>
+
+    <node pkg="aruco_detect" name="aruco_detect" type="aruco_detect" output="screen" respawn="false">
+        <param name="image_transport" value="raw"/>
         <param name="publish_images" value="true"/>
         <param name="do_pose_estimation" value="true"/>
         <remap 
-            from="/camera/compressed" 
-            to="/usb_cam/image_raw/compressed"
+            from="/camera" 
+            to="/usb_cam/image_raw"
         />
         <remap from="/camera_info" to="/usb_cam/camera_info"/>
     </node>
