@@ -3,17 +3,10 @@
 import numpy as np
 from casadi import *
 
+lin_tol = 0.03 # m
+ang_tol = 1*np.pi/180.0 # rads
 
-
-wheelradius = 0.1 # Wheel radius in m
-V_max = 0.5 # Maximum forward velocity in m
-w_max = V_max/wheelradius
-
-wheelbase = 0.2 # Distance between wheels m
-lin_tol = 0.03 #m
-ang_tol = 1*np.pi/180.0 #rads
-
-def solve_traj_opt(ics, fcs, N=100):
+def solve_traj_opt(ics, fcs, wheelradius, w_max, wheelbase, N=100):
     opti = Opti() # Optimization problem
 
     # ---- decision variables ---------
@@ -31,9 +24,9 @@ def solve_traj_opt(ics, fcs, N=100):
     opti.minimize(T) # race in minimal time
 
     # ---- dynamic constraints --------
-    f = lambda x,u: vertcat(wheelradius/2*cos(x[2])*(u[0] + u[1]), # dx/dt = f(x,u)
-                            wheelradius/2*sin(x[2])*(u[0] + u[1]),
-                            wheelradius/wheelbase*(u[1] - u[0])) 
+    f = lambda x,u: vertcat((wheelradius/2)*cos(x[2])*(u[0] + u[1]), # dx/dt = f(x,u)
+                            (wheelradius/2)*sin(x[2])*(u[0] + u[1]),
+                            (wheelradius/wheelbase)*(u[1] - u[0])) 
 
     dt = T/N # length of a control interval
     for k in range(N): # loop over control intervals
@@ -49,8 +42,8 @@ def solve_traj_opt(ics, fcs, N=100):
     opti.subject_to(opti.bounded(-15,x,15)) # x
     opti.subject_to(opti.bounded(-15,y,15)) # y
 
-    opti.subject_to(opti.bounded(-w_max,w_left,w_max)) # left wheel velocity
-    opti.subject_to(opti.bounded(-w_max,w_right,w_max)) # left wheel velocity
+    opti.subject_to(opti.bounded(-w_max, w_left, w_max)) # left wheel angular velocity
+    opti.subject_to(opti.bounded(-w_max, w_right, w_max)) # left wheel angular velocity
 
     # ---- boundary conditions --------
     opti.subject_to(x[0]==ics[0])   # x0
@@ -67,7 +60,7 @@ def solve_traj_opt(ics, fcs, N=100):
 
 
     # ---- misc. constraints  ----------
-    opti.subject_to(T>=0.1) # Time must be positive
+    opti.subject_to(T >= 0.1) # Time must be positive
 
     # ---- initial values for solver ---
     x0 = linspace(ics[0], fcs[0], N+1) + 0.05*np.random.rand(N+1,1)
@@ -84,5 +77,9 @@ def solve_traj_opt(ics, fcs, N=100):
     except:
         opti.debug.show_infeasibilities()
 
-    res = (N,sol.value(T),sol.value(dt),sol.value(x), sol.value(y), sol.value(theta), sol.value(w_left), sol.value(w_right))
+    res = (
+        N, sol.value(T), sol.value(dt), 
+        sol.value(x), sol.value(y), sol.value(theta), 
+        sol.value(w_left), sol.value(w_right)
+    )
     return res

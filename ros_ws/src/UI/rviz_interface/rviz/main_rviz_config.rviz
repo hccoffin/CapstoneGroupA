@@ -124,7 +124,7 @@ Visualization Manager:
     - Class: rviz/FocusCamera
     - Class: rviz/Measure
     - Class: rviz/SetGoal
-      Topic: /planner/goal_pose
+      Topic: /ui/goal_pose
   Value: true
   Views:
     Current:
