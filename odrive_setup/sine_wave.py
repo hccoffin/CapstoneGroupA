@@ -25,17 +25,18 @@ print("Starting forcing function sweep")
 # Setup forcing function
 tf = 30
 dt = 0.005
+
 omega = 6
 mag = 5
 
 ts = np.arange(0,tf,dt)
-last_time = time.time()
 
 xs = np.array([])
 vs = np.array([])
 Is_measured = np.array([])
 Is_commanded = np.array([])
 
+last_time = time.time()
 for i in range(0, ts.size):
     next_time = last_time + dt
     t = ts[i]
@@ -51,6 +52,7 @@ for i in range(0, ts.size):
     if (sleep_time > 0):
         time.sleep(sleep_time)
     else:
+        print(sleep_time)
         print("Time step too short! Exiting now")
         break
 
