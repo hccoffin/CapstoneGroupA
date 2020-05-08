@@ -3,10 +3,12 @@
 import rospy
 from nav_msgs.msg import Odometry, Path
 from geometry_msgs.msg import PoseArray, Pose, PoseStamped, Twist
+from sensor_msgs.msg import JointState
 import angles
 import tf
 import numpy as np
 from traj_opt_casadi import solve_traj_opt
+import odrive
 
 wheelradius = 0.095
 v_max = 0.5
@@ -48,12 +50,12 @@ class ControllerNode(object):
 		self.v = 0
 		self.omega = 0
 
-		self.t = []
-		self.x = []
-		self.y = []
-		self.th = []
-		self.w_left = []
-		self.w_right = []
+		self.t = np.array([])
+		self.x = np.array([])
+		self.y = np.array([])
+		self.th = np.array([])
+		self.w_left = np.array([])
+		self.w_right = np.array([])
 
 	def goal_pose_callback(self, msg):
 		goal_loc = location_from_pose(msg.pose)
@@ -89,8 +91,9 @@ def main():
 	)
 	node = ControllerNode(path_publisher)
 	rospy.Subscriber('/ui/goal_pose', PoseStamped, node.goal_pose_callback)
-	rospy.Subscriber('/localizer/pose_est', Odometry, node.pose_est_callback)
-	rospy.wait_for_message('/ui/goal_pose', PoseStamped)
+	#rospy.Subscriber('/localizer/pose_est', Odometry, node.pose_est_callback)
+	joint_pub = rospy.Publisher('/state_estimator/joint_states', JointState, queue_size=1)
+	#rospy.wait_for_message('/ui/goal_pose', PoseStamped)
 	# TODO: uncomment next line once there is localization data
 	# rospy.wait_for_message('/localizer/pose_est', Odometry)
 
@@ -99,6 +102,23 @@ def main():
 	p_vel = .5
 	delay = 0
 	while not rospy.is_shutdown():
+
+		# Collect and send out encoder positions and velocities
+		wheel_l_theta = 0 # convert ticks to radians
+		wheel_r_theta = 0
+
+		wheel_l_dtheta = 0
+		wheel_r_dtheta = 0
+
+		js = JointState()
+		js.header.stamp = rospy.get_rostime()
+		js.name = ["wheel_l", "wheel_r"]
+		js.position = [wheel_l_theta, wheel_r_theta]
+		js.velocity = [wheel_l_dtheta, wheel_r_dtheta]
+		js.effort = [0,0]
+		joint_pub.publish(js)
+
+		# Control loop
 		if node.t.shape[0] != 0:
 			time_seconds = rospy.get_time()
 			index = np.searchsorted(node.t, time_seconds)
@@ -156,7 +176,6 @@ def main():
 
 		# TODO: do something with the desired w_left, w_right here
 		rospy.loginfo('w_right: {}, w_left: {}'.format(w_right_cmd, w_left_cmd))
-
 
 if __name__ == '__main__':
 	main()
