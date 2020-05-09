@@ -51,6 +51,7 @@ class DeadReckoningNode(object):
 
 			pose_est = Odometry()
 			pose_est.header.stamp = msg.header.stamp
+			pose_est.header.frame_id = "world"
 			pose_est.pose.pose.position.x = self.x
 			pose_est.pose.pose.position.y = self.y
 			quaternion = quaternion_from_euler(0, 0, self.th)

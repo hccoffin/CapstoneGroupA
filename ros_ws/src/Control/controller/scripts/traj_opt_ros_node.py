@@ -45,13 +45,15 @@ def location_from_pose(pose):
 
 class ControllerNode(object):
 
-	def __init__(self, path_publisher):
+	def __init__(self, path_publisher, odrv0):
 		self.path_pub = path_publisher
 	
 		# TODO: don't set these variables (wait for subscriber call)
 		self.robot_loc = [0, 0, 0]
 		self.v = 0
 		self.omega = 0
+
+		self.odrv0 = odrv0
 
 		self.t = np.array([])
 		self.x = np.array([])
@@ -61,6 +63,9 @@ class ControllerNode(object):
 		self.w_right = np.array([])
 
 	def goal_pose_callback(self, msg):
+		self.odrv0.axis1.controller.vel_setpoint = 0
+		self.odrv0.axis0.controller.vel_setpoint = 0
+		print("Received new goal pose")
 		goal_loc = location_from_pose(msg.pose)
 		print(goal_loc)
 
@@ -80,6 +85,21 @@ class ControllerNode(object):
 		N, T, dt, self.x, self.y, self.th, self.w_left, self.w_right = res
 		time_seconds = rospy.get_time()
 		self.t = time_seconds + (np.arange(N) * T)
+
+		p = Path()
+		p.header.stamp = msg.header.stamp
+		p.header.frame_id = "world"
+		for i in range(N):
+			path_pose = PoseStamped()
+			path_pose.pose.position.x = float(self.x[i])
+			path_pose.pose.position.y = float(self.y[i])
+			path_pose.pose.position.z = 0
+			quat = tf.transformations.quaternion_from_euler(0,0,float(self.th[i]))
+			path_pose.pose.orientation = quat
+			p.poses.append(path_pose)
+
+		self.path_pub.publish(p)
+		rospy.loginfo("Sending out new path")
 
 	def pose_est_callback(self, msg):
 		x, y, th, v, omega = location_and_vel_from_odometry(msg)
@@ -118,7 +138,7 @@ def main():
 	path_publisher = rospy.Publisher(
 		'/controller/desired_path', Path, queue_size=1
 	)
-	node = ControllerNode(path_publisher)
+	node = ControllerNode(path_publisher, odrv0)
 	rospy.Subscriber('/ui/goal_pose', PoseStamped, node.goal_pose_callback)
 	#rospy.Subscriber('/localizer/pose_est', Odometry, node.pose_est_callback)
 	joint_pub = rospy.Publisher('/state_estimator/joint_states', JointState, queue_size=1)
@@ -130,7 +150,7 @@ def main():
 	p_heading = 2
 	p_vel = .5
 	delay = 0
-	r = rospy.Rate(250)
+	rat = rospy.Rate(250)
 	while not rospy.is_shutdown():
 
 		# Collect and send out encoder positions and velocities
@@ -141,10 +161,10 @@ def main():
 		wheel_l_dtheta = odrv0.axis1.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
 		wheel_r_dtheta = -odrv0.axis0.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
 
-		rospy.loginfo('w_right_act: {}, w_left_act: {}'.format(wheel_l_dtheta, wheel_r_dtheta))
+		#rospy.loginfo('w_right_act: {}, w_left_act: {}'.format(wheel_l_dtheta, wheel_r_dtheta))
 
 		v = (wheel_l_dtheta + wheel_r_dtheta)/2*wheelradius
-		rospy.loginfo('v: {}'.format(v))
+		#rospy.loginfo('v: {}'.format(v))
 
 		js = JointState()
 		js.header.stamp = rospy.get_rostime()
@@ -207,11 +227,11 @@ def main():
 			w_right_cmd = np.clip(w_right_cmd, -w_max, w_max)
 			w_left_cmd = np.clip(w_left_cmd, -w_max, w_max)
 		else:
-			w_right_cmd = 3.5*np.pi
-			w_left_cmd = 3.5*np.pi
+			w_right_cmd = 0
+			w_left_cmd = 0
 
 		# TODO: do something with the desired w_left, w_right here
-		rospy.loginfo('w_right_cmd: {}, w_left_cmd: {}'.format(w_right_cmd, w_left_cmd))
+		#rospy.loginfo('w_right_cmd: {}, w_left_cmd: {}'.format(w_right_cmd, w_left_cmd))
 
 		# Command wheel velocity to odrive
 
@@ -221,7 +241,10 @@ def main():
 		odrv0.axis1.controller.vel_setpoint = w_left_ticks_per_sec
 		odrv0.axis0.controller.vel_setpoint = -w_right_ticks_per_sec
 
-		r.sleep()
+		rat.sleep()
+
+	#odrv0.axis0.requested_state = AXIS_STATE_IDLE
+	#odrv0.axis1.requested_state = AXIS_STATE_IDLE
 
 if __name__ == '__main__':
 	main()
