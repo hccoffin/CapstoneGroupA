@@ -1,5 +1,5 @@
 <launch>
-	<arg name="video_device" default="/dev/video1"/>
+	<arg name="video_device" default="/dev/video0"/>
 	<arg name="camera_info_file" default="file://$(find localizer)/camera_info/head_camera.yaml"/>
 	<node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
 	    <param name="video_device" value="$(arg video_device)" />

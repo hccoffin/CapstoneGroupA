@@ -1,3 +1,5 @@
 <launch>
   <include file = "$(find controller)/launch/traj_opt_controller.launch"/>
+  <include file = "$(find localizer)/launch/camera.launch"/>
+  <include file = "$(find rviz_interface)/launch/rviz_ui.launch"/>
 </launch>

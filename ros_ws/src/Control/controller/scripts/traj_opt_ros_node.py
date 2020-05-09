@@ -97,11 +97,11 @@ def setup_odrive():
         getattr(odrv0, axis).motor.config.pole_pairs = 21
         getattr(odrv0, axis).controller.config.vel_limit = 20000
     
-        getattr(odrv0, axis).encoder.config.use_index = False
+        getattr(odrv0, axis).encoder.config.use_index = True
         getattr(odrv0, axis).encoder.config.cpr = 4000
         getattr(odrv0, axis).requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
     
-    time.sleep(15)
+    time.sleep(20)
 
     for axis in ['axis0', 'axis1']:
         getattr(odrv0, axis).controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL
@@ -140,6 +140,11 @@ def main():
 
 		wheel_l_dtheta = odrv0.axis1.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
 		wheel_r_dtheta = -odrv0.axis0.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
+
+		rospy.loginfo('w_right_act: {}, w_left_act: {}'.format(wheel_l_dtheta, wheel_r_dtheta))
+
+		v = (wheel_l_dtheta + wheel_r_dtheta)/2*wheelradius
+		rospy.loginfo('v: {}'.format(v))
 
 		js = JointState()
 		js.header.stamp = rospy.get_rostime()
@@ -202,11 +207,11 @@ def main():
 			w_right_cmd = np.clip(w_right_cmd, -w_max, w_max)
 			w_left_cmd = np.clip(w_left_cmd, -w_max, w_max)
 		else:
-			w_right_cmd = 1*np.pi
-			w_left_cmd = 1*np.pi
+			w_right_cmd = 3.5*np.pi
+			w_left_cmd = 3.5*np.pi
 
 		# TODO: do something with the desired w_left, w_right here
-		rospy.loginfo('w_right: {}, w_left: {}'.format(w_right_cmd, w_left_cmd))
+		rospy.loginfo('w_right_cmd: {}, w_left_cmd: {}'.format(w_right_cmd, w_left_cmd))
 
 		# Command wheel velocity to odrive
 
