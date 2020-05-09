@@ -19,18 +19,18 @@ w_max = v_max / wheelradius
 wheelbase = 0.2
 
 def location_and_vel_from_odometry(odometry):
-	x = odometry.pose.pose.position.x
-	y = odometry.pose.pose.position.y
-	quaternion = pose.orientation
+	x = msg.pose.pose.position.x
+	y = msg.pose.pose.position.y
+	quaternion = msg.pose.pose.orientation
 	euler_angles = tf.transformations.euler_from_quaternion(
 		[quaternion.x, quaternion.y, quaternion.z, quaternion.w]
 	)
 	th = euler_angles[2]
-	v = (
-		.5 * odometry.twist.twist.linear.x / (np.cos(cur_theta) + 1e-5) + 
-		.5 * odometry.twist.twist.linear.y / (np.sin(cur_theta) + 1e-5)
-	)
-	omega = odometry.twist.twist.angular.z
+	if np.abs(np.cos(th)) < 1e-5:
+		v = msg.twist.twist.linear.y / np.sin(th)
+	else:
+		v = msg.twist.twist.linear.x / np.cos(th)
+	omega = msg.twist.twist.angular.z
 	return [x, y, th, v, omega]
 
 def location_from_pose(pose):
@@ -82,7 +82,7 @@ class ControllerNode(object):
 		self.t = time_seconds + (np.arange(N) * T)
 
 	def pose_est_callback(self, msg):
-		x, y, th, v, omega = location_and_vel_from_odometry(msg.pose.pose)
+		x, y, th, v, omega = location_and_vel_from_odometry(msg)
 		self.robot_loc = [x, y, th]
 		self.v = v
 		self.omega = omega
