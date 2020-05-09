@@ -1,3 +1,3 @@
 <launch>
-  <include file = "$(find controller)/launch/controller.launch"/>
+  <include file = "$(find controller)/launch/traj_opt_controller.launch"/>
 </launch>

@@ -8,7 +8,10 @@ import angles
 import tf
 import numpy as np
 from traj_opt_casadi import solve_traj_opt
+
 import odrive
+from odrive.enums import *
+from odrive.utils import *
 
 wheelradius = 0.095
 v_max = 0.5
@@ -84,8 +87,34 @@ class ControllerNode(object):
 		self.v = v
 		self.omega = omega
 
+def setup_odrive():
+    rospy.loginfo("Finding odrive...")
+    odrv0 = odrive.find_any()
+    rospy.loginfo("Odrive found.")
+    for axis in ['axis0', 'axis1']:
+        getattr(odrv0, axis).motor.config.resistance_calib_max_voltage = 3
+        getattr(odrv0, axis).motor.config.current_lim_tolerance = 3
+        getattr(odrv0, axis).motor.config.pole_pairs = 21
+        getattr(odrv0, axis).controller.config.vel_limit = 20000
+    
+        getattr(odrv0, axis).encoder.config.use_index = False
+        getattr(odrv0, axis).encoder.config.cpr = 4000
+        getattr(odrv0, axis).requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+    
+    time.sleep(15)
+
+    for axis in ['axis0', 'axis1']:
+        getattr(odrv0, axis).controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL
+        getattr(odrv0, axis).requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
+
+    print("Odrive configured")
+    return odrv0
+
 def main():
 	rospy.init_node('controller')
+	
+	odrv0 = setup_odrive()
+
 	path_publisher = rospy.Publisher(
 		'/controller/desired_path', Path, queue_size=1
 	)
@@ -101,14 +130,16 @@ def main():
 	p_heading = 2
 	p_vel = .5
 	delay = 0
+	r = rospy.Rate(250)
 	while not rospy.is_shutdown():
 
 		# Collect and send out encoder positions and velocities
-		wheel_l_theta = 0 # convert ticks to radians
-		wheel_r_theta = 0
 
-		wheel_l_dtheta = 0
-		wheel_r_dtheta = 0
+		wheel_l_theta = odrv0.axis1.encoder.pos_estimate*(2*np.pi/4000) % 2*np.pi # convert ticks to radians
+		wheel_r_theta = -odrv0.axis0.encoder.pos_estimate*(2*np.pi/4000) % 2*np.pi
+
+		wheel_l_dtheta = odrv0.axis1.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
+		wheel_r_dtheta = -odrv0.axis0.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
 
 		js = JointState()
 		js.header.stamp = rospy.get_rostime()
@@ -171,11 +202,21 @@ def main():
 			w_right_cmd = np.clip(w_right_cmd, -w_max, w_max)
 			w_left_cmd = np.clip(w_left_cmd, -w_max, w_max)
 		else:
-			w_right_cmd = 0
-			w_left_cmd = 0
+			w_right_cmd = 1*np.pi
+			w_left_cmd = 1*np.pi
 
 		# TODO: do something with the desired w_left, w_right here
 		rospy.loginfo('w_right: {}, w_left: {}'.format(w_right_cmd, w_left_cmd))
+
+		# Command wheel velocity to odrive
+
+		w_right_ticks_per_sec = w_right_cmd*4000/(2*np.pi)
+		w_left_ticks_per_sec = w_left_cmd*4000/(2*np.pi)
+		
+		odrv0.axis1.controller.vel_setpoint = w_left_ticks_per_sec
+		odrv0.axis0.controller.vel_setpoint = -w_right_ticks_per_sec
+
+		r.sleep()
 
 if __name__ == '__main__':
 	main()
