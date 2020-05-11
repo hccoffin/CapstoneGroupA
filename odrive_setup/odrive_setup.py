@@ -16,23 +16,22 @@ for axis in ['axis0', 'axis1']:
     getattr(odrv0, axis).motor.config.current_lim_tolerance = 3
     getattr(odrv0, axis).motor.config.pole_pairs = 21
     getattr(odrv0, axis).controller.config.vel_limit = 20000
-    getattr(odrv0, axis).requested_state = AXIS_STATE_MOTOR_CALIBRATION
-    while getattr(odrv0, axis).current_state != AXIS_STATE_IDLE:
-        time.sleep(0.1)
-    getattr(odrv0, axis).motor.config.pre_calibrated = True
-
+    getattr(odrv0, axis).controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL
     print("Motor configured.")
 
     print("Configuring encoder...")
-    getattr(odrv0, axis).encoder.config.use_index = False
+    getattr(odrv0, axis).encoder.config.use_index = True
     getattr(odrv0, axis).encoder.config.cpr = 4000
-    getattr(odrv0, axis).requested_state = AXIS_STATE_ENCODER_OFFSET_CALIBRATION
-    while odrv0.axis0.current_state != AXIS_STATE_IDLE:
-        time.sleep(0.1)
-    getattr(odrv0, axis).encoder.config.pre_calibrated = True
     print("Encoder configured")
 
+    print("Setting startup routine...")
+    getattr(odrv0, axis).config.startup_motor_calibration = True
+    getattr(odrv0, axis).config.startup_encoder_index_search = True
+    getattr(odrv0, axis).config.startup_encoder_offset_calibration = True
+    getattr(odrv0, axis).config.startup_closed_loop_control = True
+    print("Startup routine set.")
 
-dump_errors(odrv0, True)
 
 odrv0.save_configuration()
+dump_errors(odrv0, True)
+

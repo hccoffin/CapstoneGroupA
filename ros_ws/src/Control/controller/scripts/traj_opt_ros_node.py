@@ -18,7 +18,7 @@ v_max = 0.5
 w_max = v_max / wheelradius
 wheelbase = 0.2
 
-def location_and_vel_from_odometry(odometry):
+def location_and_vel_from_odometry(msg):
 	x = msg.pose.pose.position.x
 	y = msg.pose.pose.position.y
 	quaternion = msg.pose.pose.orientation
@@ -45,8 +45,8 @@ def location_from_pose(pose):
 
 class ControllerNode(object):
 
-	def __init__(self, path_publisher, odrv0):
-		self.path_pub = path_publisher
+	def __init__(self, odrv0):
+		self.path_publisher = rospy.Publisher('/controller/desired_path', Path, queue_size=1)
 	
 		# TODO: don't set these variables (wait for subscriber call)
 		self.robot_loc = [0, 0, 0]
@@ -61,6 +61,8 @@ class ControllerNode(object):
 		self.th = np.array([])
 		self.w_left = np.array([])
 		self.w_right = np.array([])
+
+		self.start_time = rospy.get_time()
 
 	def goal_pose_callback(self, msg):
 		self.odrv0.axis1.controller.vel_setpoint = 0
@@ -95,11 +97,15 @@ class ControllerNode(object):
 			path_pose.pose.position.y = float(self.y[i])
 			path_pose.pose.position.z = 0
 			quat = tf.transformations.quaternion_from_euler(0,0,float(self.th[i]))
-			path_pose.pose.orientation = quat
+			path_pose.pose.orientation.x = quat[0]
+			path_pose.pose.orientation.y = quat[1]
+			path_pose.pose.orientation.z = quat[2]
+			path_pose.pose.orientation.w = quat[3]
 			p.poses.append(path_pose)
 
-		self.path_pub.publish(p)
+		self.path_publisher.publish(p)
 		rospy.loginfo("Sending out new path")
+		self.start_time = rospy.get_time()
 
 	def pose_est_callback(self, msg):
 		x, y, th, v, omega = location_and_vel_from_odometry(msg)
@@ -111,23 +117,6 @@ def setup_odrive():
     rospy.loginfo("Finding odrive...")
     odrv0 = odrive.find_any()
     rospy.loginfo("Odrive found.")
-    for axis in ['axis0', 'axis1']:
-        getattr(odrv0, axis).motor.config.resistance_calib_max_voltage = 3
-        getattr(odrv0, axis).motor.config.current_lim_tolerance = 3
-        getattr(odrv0, axis).motor.config.pole_pairs = 21
-        getattr(odrv0, axis).controller.config.vel_limit = 20000
-    
-        getattr(odrv0, axis).encoder.config.use_index = True
-        getattr(odrv0, axis).encoder.config.cpr = 4000
-        getattr(odrv0, axis).requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
-    
-    time.sleep(20)
-
-    for axis in ['axis0', 'axis1']:
-        getattr(odrv0, axis).controller.config.control_mode = CTRL_MODE_VELOCITY_CONTROL
-        getattr(odrv0, axis).requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL
-
-    print("Odrive configured")
     return odrv0
 
 def main():
@@ -135,12 +124,9 @@ def main():
 	
 	odrv0 = setup_odrive()
 
-	path_publisher = rospy.Publisher(
-		'/controller/desired_path', Path, queue_size=1
-	)
-	node = ControllerNode(path_publisher, odrv0)
+	node = ControllerNode(odrv0)
 	rospy.Subscriber('/ui/goal_pose', PoseStamped, node.goal_pose_callback)
-	#rospy.Subscriber('/localizer/pose_est', Odometry, node.pose_est_callback)
+	rospy.Subscriber('/localizer/pose_est', Odometry, node.pose_est_callback)
 	joint_pub = rospy.Publisher('/state_estimator/joint_states', JointState, queue_size=1)
 	#rospy.wait_for_message('/ui/goal_pose', PoseStamped)
 	# TODO: uncomment next line once there is localization data
@@ -158,8 +144,8 @@ def main():
 		wheel_l_theta = odrv0.axis1.encoder.pos_estimate*(2*np.pi/4000) % 2*np.pi # convert ticks to radians
 		wheel_r_theta = -odrv0.axis0.encoder.pos_estimate*(2*np.pi/4000) % 2*np.pi
 
-		wheel_l_dtheta = odrv0.axis1.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
-		wheel_r_dtheta = -odrv0.axis0.encoder.vel_estimate*(2*np.pi/4000) % 2*np.pi
+		wheel_l_dtheta = odrv0.axis1.encoder.vel_estimate*(2*np.pi/4000)
+		wheel_r_dtheta = -odrv0.axis0.encoder.vel_estimate*(2*np.pi/4000)
 
 		#rospy.loginfo('w_right_act: {}, w_left_act: {}'.format(wheel_l_dtheta, wheel_r_dtheta))
 
@@ -178,54 +164,59 @@ def main():
 		if node.t.shape[0] != 0:
 			time_seconds = rospy.get_time()
 			index = np.searchsorted(node.t, time_seconds)
+			rospy.loginfo("Index {}".format(index))
+			
 			if index >= node.t.shape[0]:
+				rospy.loginfo("Reached end of path, stopping")
 				# when reached the end of the path just use last point
 				index = node.t.shape[0] - 1
+				w_right_cmd = 0
+				w_left_cmd = 0
+			else:
+				t_next = node.t[index] - time_seconds
+				t_prev = time_seconds - node.t[index - 1]
+				r = t_prev / (t_prev + t_next) # ratio for interpolation
 
-			t_next = node.t[index] - time_seconds
-			t_prev = time_seconds - node.t[index - 1]
-			r = t_prev / (t_prev + t_next) # ratio for interpolation
+				x_des = node.x[index - 1] * (1 - r) + node.x[index] * r
+				y_des = node.y[index - 1] * (1 - r) + node.y[index] * r
+				th_des = node.th[index - 1] * (1 - r) + node.th[index] * r
+				w_left_des = node.w_left[index - 1] * (1 - r) + node.w_left[index] * r
+				w_right_des = node.w_right[index - 1] * (1 - r) + node.w_right[index] * r
 
-			x_des = node.x[index - 1] * (1 - r) + node.x[index] * r
-			y_des = node.y[index - 1] * (1 - r) + node.y[index] * r
-			th_des = node.th[index - 1] * (1 - r) + node.th[index] * r
-			w_left_des = node.w_left[index - 1] * (1 - r) + node.w_left[index] * r
-			w_right_des = node.w_right[index - 1] * (1 - r) + node.w_right[index] * r
+				v = node.v
+				omega = node.omega
+				x_est = (node.robot_loc[0] + delay * v * np.cos(node.robot_loc[2]))
+				y_est = (node.robot_loc[1] + delay * v * np.sin(node.robot_loc[2]))
+				th_est = node.robot_loc[2] + omega * delay
 
-			v = node.v
-			omega = node.omega
-			x_est = (node.robot_loc[0] + delay * v * np.cos(node.robot_loc[2]))
-			y_est = (node.robot_loc[1] + delay * v * np.sin(node.robot_loc[2]))
-			th_est = node.robot_loc[2] + omega * delay
+				dx = x_des - x_est
+				dy = y_des - y_est
+				lookahead_dist = np.sqrt(dx * dx + dy * dy)
+				lookahead_theta = np.arctan2(dy, dx)
+				
+				angle_cross_track = angles.shortest_angular_distance(
+					th_est + np.pi * (v < 0), lookahead_theta
+				)
+				omega_cross_track = lookahead_dist * np.sin(angle_cross_track) * np.sign(v)
 
-			dx = x_des - x_est
-			dy = y_des - y_est
-			lookahead_dist = np.sqrt(dx * dx + dy * dy)
-			lookahead_theta = np.arctan2(dy, dx)
-			
-			angle_cross_track = angles.shortest_angular_distance(
-				th_est + np.pi * (v < 0), lookahead_theta
-			)
-			omega_cross_track = lookahead_dist * np.sin(angle_cross_track) * np.sign(v)
+				theta_diff = angles.shortest_angular_distance(th_est, th_des)
+				omega_heading = theta_diff * np.sign(v)
 
-			theta_diff = angles.shortest_angular_distance(th_est, th_des)
-			omega_heading = theta_diff * np.sign(v)
-
-			# angular velocity command
-			omega_des = (wheelradius / wheelbase) * (w_right_des - w_left_des)
-			omega_cmd = (
-				omega_des + 
-				(p_cross_track * omega_cross_track) + 
-				(p_heading * omega_cross_track)
-			)
-			# velocity command
-			v_des = wheelradius * (w_left_des + w_right_des) / 2
-			v_cmd = v_des + p_vel * (lookahead_dist * np.cos(angle_cross_track) * np.sign(v))
-			# wheel angular velocity commands
-			w_right_cmd = (v_cmd + omega_cmd * (wheelbase / 2)) / wheelradius
-			w_left_cmd = (v_cmd - omega_cmd * (wheelbase / 2)) / wheelradius
-			w_right_cmd = np.clip(w_right_cmd, -w_max, w_max)
-			w_left_cmd = np.clip(w_left_cmd, -w_max, w_max)
+				# angular velocity command
+				omega_des = (wheelradius / wheelbase) * (w_right_des - w_left_des)
+				omega_cmd = (
+					omega_des + 
+					(p_cross_track * omega_cross_track) + 
+					(p_heading * omega_cross_track)
+				)
+				# velocity command
+				v_des = wheelradius * (w_left_des + w_right_des) / 2
+				v_cmd = v_des + p_vel * (lookahead_dist * np.cos(angle_cross_track) * np.sign(v))
+				# wheel angular velocity commands
+				w_right_cmd = (v_cmd + omega_cmd * (wheelbase / 2)) / wheelradius
+				w_left_cmd = (v_cmd - omega_cmd * (wheelbase / 2)) / wheelradius
+				w_right_cmd = np.clip(w_right_cmd, -w_max, w_max)
+				w_left_cmd = np.clip(w_left_cmd, -w_max, w_max)
 		else:
 			w_right_cmd = 0
 			w_left_cmd = 0
